@@ -1,0 +1,36 @@
+
+
+body {
+    display: flex;
+    justify-content: center;
+
+    margin: 32px;
+    padding: 0;
+}
+
+#app {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start flex-end;
+    border: solid 2px black;
+}
+
+.panel {
+    width: 250px;
+    border: solid 2px black;
+}
+
+#center-panel {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+}
+
+canvas {
+  border: 1px solid #ccc;
+  background: white;
+  max-width: 100%;
+  max-height: 100%;
+}
