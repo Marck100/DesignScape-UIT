@@ -16,6 +16,58 @@
         </div>
 
         <div id="right-panel" class="panel">Brainstorming</div>
+
+        <div id="element-picker">
+            <label for="element-type">Nuovo elemento:</label>
+            <select id="element-type">
+                <option value="box">Box</option>
+                <option value="text">Testo</option>
+                <option value="image">Immagine</option>
+            </select>
+            <button id="add-element">Aggiungi</button>
+        </div>
+
+        <div id="box-color-panel" style="display: none;">
+            <label for="box-color">Colore Box:</label>
+            <input type="color" id="box-color" value="#007acc" />
+        </div>
+
+        <div id="text-settings-panel" style="display:none; margin-top:10px;">
+            <label for="font-family">Font:</label>
+            <select id="font-family">
+                <option value="Arial">Arial</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+            </select>
+
+            <label for="font-size">Dimensione:</label>
+            <input type="number" id="font-size" min="8" max="72" value="20" style="width:60px;" />
+
+            <label>
+                <input type="checkbox" id="font-bold" />
+                Grassetto
+            </label>
+
+            <label>
+                <input type="checkbox" id="font-italic" />
+                Corsivo
+            </label>
+
+            <label for="font-color">Colore:</label>
+            <input type="color" id="font-color" value="#000000" />
+
+            <label for="text-align">Allineamento:</label>
+            <select id="text-align">
+                <option value="left">Sinistra</option>
+                <option value="center">Centro</option>
+                <option value="right">Destra</option>
+            </select>
+        </div>
+
+
+
     </div>
 
     <script type="module" src="./src/main.ts"></script>
