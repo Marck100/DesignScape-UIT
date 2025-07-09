@@ -135,4 +135,98 @@ window.addEventListener("DOMContentLoaded", () => {
     fontColorInput.addEventListener("input", updateSelectedTextElement);
     fontBoldCheckbox.addEventListener("change", updateSelectedTextElement);
     fontItalicCheckbox.addEventListener("change", updateSelectedTextElement);
+
+    async function fetchBrainstormingSuggestions() {
+        const layout = dc.exportLayout();
+        console.log('layout:', layout);
+        const response = await fetch("http://localhost:8000/predict", {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ input: layout })
+        });
+
+        const data = await response.json();
+        console.log('DATA:', data)
+        console.log(data.output)
+        return data;
+    }
+
+    const brainstormingPanel = document.getElementById("brainstorming-suggestions")!;
+    const button = document.getElementById("generate-brainstorming")!;
+
+    button.addEventListener("click", async () => {
+        // Mostra rotella di caricamento
+        brainstormingPanel.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 0 auto;"></div>
+                <p style="margin-top: 10px;">Generando opzioni...</p>
+            </div>
+            <style>
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        `;
+
+        try {
+            const data = await fetchBrainstormingSuggestions();
+            const versions = data.versions || [];
+
+            // Mostra le opzioni come bottoni
+            brainstormingPanel.innerHTML = `
+                <h4 style="color: #555; margin-bottom: 16px; font-weight: 500;">Opzioni generate:</h4>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    ${versions.map((version: any, index: number) => `
+                        <button class="option-btn" data-index="${index}" style="
+                            padding: 12px 16px;
+                            background-color: #f8f9fa;
+                            color: #495057;
+                            border: 1px solid #dee2e6;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: 500;
+                            transition: all 0.2s ease;
+                            text-align: left;
+                        ">
+                            ${version.name}
+                        </button>
+                    `).join("")}
+                </div>
+            `;
+
+            // Aggiungi event listeners per i bottoni delle opzioni
+            brainstormingPanel.querySelectorAll('.option-btn').forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    dc.clear();
+                    const selectedVersion = versions[index];
+                    selectedVersion.layout.forEach((el: any) => {
+                        dc.addElement(new LayoutElement(el));
+                    });
+                });
+
+                // Effetto hover
+                btn.addEventListener('mouseenter', () => {
+                    (btn as HTMLElement).style.backgroundColor = '#e9ecef';
+                    (btn as HTMLElement).style.borderColor = '#6c757d';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    (btn as HTMLElement).style.backgroundColor = '#f8f9fa';
+                    (btn as HTMLElement).style.borderColor = '#dee2e6';
+                });
+            });
+
+        } catch (error) {
+            brainstormingPanel.innerHTML = `
+                <div style="color: red; text-align: center; padding: 20px;">
+                    Errore nel generare le opzioni. Riprova.
+                </div>
+            `;
+        }
+    });
+
+
 });

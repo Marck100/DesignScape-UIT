@@ -2,13 +2,16 @@
 
 import { LayoutElement } from "./layoutElement";
 import { generateRefinementSuggestions, RefinementSuggestion } from "./refinementSuggestion";
-import { generateBrainstormingSuggestions, BrainstormingSuggestion } from "./brainstormingSuggestion"; // <-- NUOVO IMPORT
+
 
 export class DesignCanvas {
+    getElements() {
+        throw new Error("Method not implemented.");
+    }
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private elements: LayoutElement[] = [];
+    public elements: LayoutElement[] = [];
     private selectedElement: LayoutElement | null = null;
 
     private isDragging: boolean = false;
@@ -39,13 +42,22 @@ export class DesignCanvas {
 
         this.initListeners();
         this.draw();
-        this.updateBrainstormingSuggestionsUI(); // Mostra i suggerimenti di brainstorming all'avvio
+    }
+
+    exportLayout(): LayoutElement[] {
+        return this.elements.map(el => new LayoutElement({
+        x: el.x,
+        y: el.y,
+        width: el.width,
+        height: el.height,
+        type: el.type,
+        content: el.content
+        }));
     }
 
     addElement(element: LayoutElement) {
         this.elements.push(element);
         this.draw();
-        this.updateBrainstormingSuggestionsUI(); // Aggiorna i suggerimenti di brainstorming quando si aggiunge un elemento
     }
 
     private initListeners() {
@@ -98,7 +110,7 @@ export class DesignCanvas {
         }
 
         // I suggerimenti di brainstorming sono sempre presenti, o aggiornati
-        this.updateBrainstormingSuggestionsUI();
+      
         this.draw();
         if (this.onElementSelected) {
             this.onElementSelected(this.selectedElement);
@@ -186,7 +198,7 @@ export class DesignCanvas {
             this.clearRefinementSuggestionsUI();
         }
 
-        this.updateBrainstormingSuggestionsUI(); // Aggiorna anche questi
+      
     }
 
     private onDoubleClick(e: MouseEvent) {
@@ -315,7 +327,6 @@ export class DesignCanvas {
             div.innerText = suggestion.description;
             div.onclick = () => {
                 suggestion.apply();
-                this.updateBrainstormingSuggestionsUI(); // Aggiorna i brainstorming dopo l'applicazione di un refinement
             };
             this.refinementSuggestionsContainer.appendChild(div);
         }
@@ -326,42 +337,18 @@ export class DesignCanvas {
         this.refinementSuggestionsContainer.innerHTML = "<strong>Refinements</strong>";
     }
 
-    private updateBrainstormingSuggestionsUI() {
-        if (!this.brainstormingSuggestionsContainer) return;
-        this.brainstormingSuggestionsContainer.innerHTML = "<strong>Brainstorming</strong>";
 
-        const suggestions = generateBrainstormingSuggestions(
-            this.elements,
-            this.canvas.width,
-            this.canvas.height
-        );
-
-        for (const suggestion of suggestions) {
-            const div = document.createElement("div");
-            div.className = "suggestion-preview brainstorming-preview";
-            div.innerText = suggestion.description;
-            div.onclick = () => {
-                // Applica il suggerimento creando un *nuovo* set di elementi
-                this.elements = suggestion.apply(this.elements, this.canvas.width, this.canvas.height);
-                this.selectedElement = null; // Deseleziona tutto dopo aver applicato un nuovo layout
-                this.clearRefinementSuggestionsUI(); // Pulisci i suggerimenti di refinement
-                this.draw();
-                // Rigenera i suggerimenti di brainstorming dopo aver applicato un nuovo layout
-                this.updateBrainstormingSuggestionsUI();
-                // Assicurati che il pannello di controllo dell'elemento selezionato sia nascosto
-                if (this.onElementSelected) {
-                    this.onElementSelected(null);
-                }
-            };
-            this.brainstormingSuggestionsContainer.appendChild(div);
-        }
-    }
-
-    private draw() {
+    public draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.drawGrid();
         for (const el of this.elements) {
             el.draw(this.ctx);
         }
+    }
+
+    public clear() {
+        this.elements = [];
+        this.selectedElement = null;
+        this.draw();
     }
 }

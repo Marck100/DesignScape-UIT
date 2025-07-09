@@ -65,6 +65,17 @@ export class LayoutElement {
         }
     }
 
+    toSerializable(): object {
+        return {
+        x: this.x,
+        y: this.y,
+        width: this.width,
+        height: this.height,
+        type: this.type,
+        content: this.content ?? null
+        };
+    }
+
     getResizeHandles(): {x: number, y: number}[] {
         const size = this.resizeHandleSize;
         return [
