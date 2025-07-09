@@ -1,8 +1,6 @@
 // src/DesignCanvas.ts
 
 import { LayoutElement } from "./layoutElement";
-import { generateRefinementSuggestions, RefinementSuggestion } from "./refinementSuggestion";
-
 
 export class DesignCanvas {
     getElements() {
@@ -14,6 +12,16 @@ export class DesignCanvas {
     public elements: LayoutElement[] = [];
     private selectedElement: LayoutElement | null = null;
 
+    // Getter pubblico per l'elemento selezionato
+    get currentSelection(): LayoutElement | null {
+        return this.selectedElement;
+    }
+
+    // History management
+    private history: LayoutElement[][] = [];
+    private historyIndex: number = -1;
+    private maxHistorySize: number = 50;
+
     private isDragging: boolean = false;
     private offsetX = 0;
     private offsetY = 0;
@@ -24,6 +32,9 @@ export class DesignCanvas {
     private cursorTimer: number | null = null;
 
     onElementSelected: ((el: LayoutElement | null) => void) | null = null;
+    onHistoryChange: ((canUndo: boolean, canRedo: boolean) => void) | null = null;
+    onElementMoved: ((el: LayoutElement) => void) | null = null;
+    onElementUpdated: ((el: LayoutElement) => void) | null = null;
 
     private refinementSuggestionsContainer: HTMLElement | null = null;
     private brainstormingSuggestionsContainer: HTMLElement | null = null;
@@ -42,6 +53,8 @@ export class DesignCanvas {
 
         this.initListeners();
         this.draw();
+        this.clearRefinementSuggestionsUI(); // Initialize refinements panel
+        this.saveState(); // Save initial state
     }
 
     exportLayout(): LayoutElement[] {
@@ -58,6 +71,24 @@ export class DesignCanvas {
     addElement(element: LayoutElement) {
         this.elements.push(element);
         this.draw();
+        this.saveState();
+    }
+
+    clearCanvas() {
+        this.elements = [];
+        this.selectedElement = null;
+        this.draw();
+        // Reset history when clearing canvas
+        this.history = [];
+        this.historyIndex = -1;
+        // Notify about selection change
+        if (this.onElementSelected) {
+            this.onElementSelected(null);
+        }
+        // Notify about history change
+        if (this.onHistoryChange) {
+            this.onHistoryChange(false, false);
+        }
     }
 
     private initListeners() {
@@ -96,16 +127,8 @@ export class DesignCanvas {
             }
         }
 
-        if (this.selectedElement) {
-            const suggestions = generateRefinementSuggestions(
-                this.selectedElement,
-                this.elements,
-                this.canvas.width,
-                this.canvas.height,
-                () => this.draw()
-            );
-            this.showRefinementSuggestionsUI(suggestions);
-        } else {
+        // Clear refinement suggestions when no element is selected
+        if (!this.selectedElement) {
             this.clearRefinementSuggestionsUI();
         }
 
@@ -118,11 +141,13 @@ export class DesignCanvas {
     }
 
     private onMouseMove(e: MouseEvent) {
+        const { x, y } = this.getMousePosition(e);
+
         if (!this.selectedElement) {
+            document.body.style.cursor = 'default';
             return;
         }
 
-        const { x, y } = this.getMousePosition(e);
         const el = this.selectedElement;
 
         const right = el.x + el.width;
@@ -165,10 +190,31 @@ export class DesignCanvas {
                     el.height = Math.max(minSize, newY3 - el.y);
                     break;
             }
+            
+            // Update controls in real-time during resize
+            if (this.onElementUpdated) {
+                this.onElementUpdated(el);
+            }
         } else if (this.isDragging) {
             this.selectedElement.x = this.snapToGrid(x - this.offsetX);
             this.selectedElement.y = this.snapToGrid(y - this.offsetY);
-            document.body.style.cursor = 'default';
+            document.body.style.cursor = 'move';
+            
+            // Update controls in real-time
+            if (this.onElementUpdated) {
+                this.onElementUpdated(this.selectedElement);
+            }
+        } else {
+            // Show appropriate cursor when hovering over resize handles
+            const handleIndex = this.selectedElement.getResizeHandle(x, y);
+            if (handleIndex !== null) {
+                const cursors = ['nw-resize', 'ne-resize', 'sw-resize', 'se-resize'];
+                document.body.style.cursor = cursors[handleIndex];
+            } else if (this.selectedElement.contains(x, y)) {
+                document.body.style.cursor = 'move';
+            } else {
+                document.body.style.cursor = 'default';
+            }
         }
 
 
@@ -176,25 +222,29 @@ export class DesignCanvas {
     }
 
     private onMouseUp(e: MouseEvent) {
+        const wasDragging = this.isDragging;
+        const wasResizing = this.resizingHandleIndex !== null;
+        
         this.isDragging = false;
         this.resizingHandleIndex = null;
 
         document.body.style.cursor = 'default';
 
+        // Save state if element was moved or resized
+        if (wasDragging || wasResizing) {
+            this.saveState();
+            
+            // Call onElementMoved callback for adaptive interface
+            if (this.selectedElement && this.onElementMoved) {
+                this.onElementMoved(this.selectedElement);
+            }
+        }
+
         if (this.onElementSelected) {
             this.onElementSelected(this.selectedElement);
         }
-        // Aggiorna i suggerimenti di refinement anche dopo il dragging/resizing
-        if (this.selectedElement) {
-            const suggestions = generateRefinementSuggestions(
-                this.selectedElement,
-                this.elements,
-                this.canvas.width,
-                this.canvas.height,
-                () => this.draw()
-            );
-            this.showRefinementSuggestionsUI(suggestions);
-        } else {
+        // Clear refinement suggestions
+        if (!this.selectedElement) {
             this.clearRefinementSuggestionsUI();
         }
 
@@ -317,24 +367,11 @@ export class DesignCanvas {
         this.ctx.restore();
     }
 
-    private showRefinementSuggestionsUI(suggestions: RefinementSuggestion[]) {
-        if (!this.refinementSuggestionsContainer) return;
-        this.refinementSuggestionsContainer.innerHTML = "<strong>Refinements</strong>";
-
-        for (const suggestion of suggestions) {
-            const div = document.createElement("div");
-            div.className = "suggestion-preview";
-            div.innerText = suggestion.description;
-            div.onclick = () => {
-                suggestion.apply();
-            };
-            this.refinementSuggestionsContainer.appendChild(div);
-        }
-    }
-
     private clearRefinementSuggestionsUI() {
         if (!this.refinementSuggestionsContainer) return;
-        this.refinementSuggestionsContainer.innerHTML = "<strong>Refinements</strong>";
+        this.refinementSuggestionsContainer.querySelector('.sidebar-content')!.innerHTML = `
+            <p class="hint-text">Select an element to see AI suggestions for improvements</p>
+        `;
     }
 
 
@@ -350,5 +387,105 @@ export class DesignCanvas {
         this.elements = [];
         this.selectedElement = null;
         this.draw();
+        this.saveState();
+    }
+
+    // History management methods
+    public saveState() {
+        // Remove any states after current index (when adding new state after undo)
+        this.history = this.history.slice(0, this.historyIndex + 1);
+        
+        // Deep clone current elements state
+        const currentState = this.elements.map(el => new LayoutElement({
+            x: el.x,
+            y: el.y,
+            width: el.width,
+            height: el.height,
+            type: el.type,
+            content: el.content,
+            fontSize: el.fontSize,
+            fontBold: el.fontBold,
+            fontItalic: el.fontItalic,
+            fontColor: el.fontColor,
+            fontFamily: el.fontFamily,
+            textAlign: el.textAlign,
+            fillColor: el.fillColor
+        }));
+        
+        this.history.push(currentState);
+        this.historyIndex = this.history.length - 1;
+        
+        // Limit history size
+        if (this.history.length > this.maxHistorySize) {
+            this.history.shift();
+            this.historyIndex--;
+        }
+        
+        this.notifyHistoryChange();
+    }
+
+    public undo(): boolean {
+        if (this.historyIndex > 0) {
+            this.historyIndex--;
+            this.restoreState();
+            this.notifyHistoryChange();
+            return true;
+        }
+        return false;
+    }
+
+    public redo(): boolean {
+        if (this.historyIndex < this.history.length - 1) {
+            this.historyIndex++;
+            this.restoreState();
+            this.notifyHistoryChange();
+            return true;
+        }
+        return false;
+    }
+
+    private restoreState() {
+        if (this.historyIndex >= 0 && this.historyIndex < this.history.length) {
+            // Deep clone the state to restore
+            this.elements = this.history[this.historyIndex].map(el => new LayoutElement({
+                x: el.x,
+                y: el.y,
+                width: el.width,
+                height: el.height,
+                type: el.type,
+                content: el.content,
+                fontSize: el.fontSize,
+                fontBold: el.fontBold,
+                fontItalic: el.fontItalic,
+                fontColor: el.fontColor,
+                fontFamily: el.fontFamily,
+                textAlign: el.textAlign,
+                fillColor: el.fillColor
+            }));
+            
+            this.selectedElement = null;
+            this.draw();
+            this.clearRefinementSuggestionsUI();
+            
+            if (this.onElementSelected) {
+                this.onElementSelected(null);
+            }
+        }
+    }
+
+    private notifyHistoryChange() {
+        if (this.onHistoryChange) {
+            const canUndo = this.historyIndex > 0;
+            const canRedo = this.historyIndex < this.history.length - 1;
+            this.onHistoryChange(canUndo, canRedo);
+        }
+    }
+
+    public canUndo(): boolean {
+        return this.historyIndex > 0;
+    }
+
+    public canRedo(): boolean {
+        return this.historyIndex < this.history.length - 1;
     }
 }

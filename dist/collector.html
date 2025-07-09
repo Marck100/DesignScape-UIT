@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Data Collection</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    #controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      width: 1000px;
+      height: 600px;
+    }
+    #text-settings-panel, #box-color-panel {
+      display: none;
+      padding: 10px;
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Editor Raccolta Dati</h2>
+
+  <div id="controls">
+    <select id="element-type">
+      <option value="box">Box</option>
+      <option value="text">Text</option>
+      <option value="image">Image</option>
+    </select>
+    <button id="add-element">Aggiungi</button>
+    <button id="save-layout">Salva layout iniziale</button>
+    <button id="save-variant">Salva versione migliorata</button>
+    <button id="download-data">Scarica JSON</button>
+  </div>
+
+  <div id="box-color-panel">
+    <label>Colore box: <input type="color" id="box-color" /></label>
+  </div>
+
+  <div id="text-settings-panel">
+    <label>Font: 
+      <select id="font-family">
+        <option value="sans-serif">Sans-serif</option>
+        <option value="serif">Serif</option>
+        <option value="monospace">Monospace</option>
+      </select>
+    </label>
+    <label>Allineamento: 
+      <select id="text-align">
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+        <option value="right">Right</option>
+      </select>
+    </label>
+    <label>Dimensione: <input type="number" id="font-size" value="16" min="8" /></label>
+    <label>Colore: <input type="color" id="font-color" value="#000000" /></label>
+    <label><input type="checkbox" id="font-bold" /> Bold</label>
+    <label><input type="checkbox" id="font-italic" /> Italic</label>
+  </div>
+
+  <canvas id="canvas" width="1000" height="600"></canvas>
+
+  <script type="module" src="/src/dataCollectionPage.ts"></script>
+</body>
+</html>

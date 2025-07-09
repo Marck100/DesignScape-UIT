@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesignScope - AI-Powered Layout Designer</title>
+    <link rel="stylesheet" href="src/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo">
+                <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+                    <span class="material-icons">design_services</span>
+                    <h1>DesignScope</h1>
+                </a>
+            </div>
+            
+            <!-- Add Element Controls (Center) -->
+            <div class="header-center">
+                <div class="dropdown-container">
+                    <button class="btn btn-primary" id="add-element-btn">
+                        <span class="material-icons">add</span>
+                        Add Element
+                        <span class="material-icons dropdown-arrow">keyboard_arrow_down</span>
+                    </button>
+                    <div class="dropdown-menu" id="element-dropdown">
+                        <button class="dropdown-item" data-element="box">
+                            <span class="material-icons">crop_square</span>
+                            <span class="item-text">
+                                <span class="item-title">Rectangle</span>
+                                <span class="item-desc">Add a rectangle shape</span>
+                            </span>
+                            <span class="item-shortcut">R</span>
+                        </button>
+                        <button class="dropdown-item" data-element="text">
+                            <span class="material-icons">text_fields</span>
+                            <span class="item-text">
+                                <span class="item-title">Text</span>
+                                <span class="item-desc">Add text content</span>
+                            </span>
+                            <span class="item-shortcut">T</span>
+                        </button>
+                        <button class="dropdown-item" data-element="image">
+                            <span class="material-icons">image</span>
+                            <span class="item-text">
+                                <span class="item-title">Image</span>
+                                <span class="item-desc">Add an image</span>
+                            </span>
+                            <span class="item-shortcut">I</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="action-group">
+                    <a href="index.html" class="btn btn-secondary" title="New Project">
+                        <span class="material-icons">home</span>
+                        <span>Home</span>
+                    </a>
+                    <button class="btn btn-secondary" id="undo-btn" disabled title="Undo (Ctrl+Z)">
+                        <span class="material-icons">undo</span>
+                    </button>
+                    <button class="btn btn-secondary" id="redo-btn" disabled title="Redo (Ctrl+Y)">
+                        <span class="material-icons">redo</span>
+                    </button>
+                    <button class="btn btn-secondary" id="export-project">
+                        <span class="material-icons">download</span>
+                        Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Properties Toolbar - Separate from header -->
+    <div id="properties-toolbar" class="properties-toolbar">
+        <!-- Box Properties -->
+        <div id="box-properties" class="toolbar-content" style="display: none;">
+            <div class="toolbar-section">
+                <span class="toolbar-label">X</span>
+                <input type="number" id="box-x" value="0" class="size-input" step="1" />
+            </div>
+            
+            <div class="toolbar-section">
+                <span class="toolbar-label">Y</span>
+                <input type="number" id="box-y" value="0" class="size-input" step="1" />
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
+            <div class="toolbar-section">
+                <span class="toolbar-label">W</span>
+                <input type="number" id="box-width" value="100" class="size-input" min="10" step="1" />
+            </div>
+            
+            <div class="toolbar-section">
+                <span class="toolbar-label">H</span>
+                <input type="number" id="box-height" value="100" class="size-input" min="10" step="1" />
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
+            <div class="toolbar-section">
+                <span class="toolbar-label">Fill</span>
+                <input type="color" id="box-color" value="#007acc" class="color-picker" />
+            </div>
+        </div>
+
+        <!-- Text Properties -->
+        <div id="text-properties" class="toolbar-content" style="display: none;">
+            <div class="toolbar-section">
+                <span class="toolbar-label">X</span>
+                <input type="number" id="text-x" value="0" class="size-input" step="1" />
+            </div>
+            
+            <div class="toolbar-section">
+                <span class="toolbar-label">Y</span>
+                <input type="number" id="text-y" value="0" class="size-input" step="1" />
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
+            <div class="toolbar-section">
+                <span class="toolbar-label">W</span>
+                <input type="number" id="text-width" value="200" class="size-input" min="50" step="1" />
+            </div>
+            
+            <div class="toolbar-section">
+                <span class="toolbar-label">H</span>
+                <input type="number" id="text-height" value="30" class="size-input" min="20" step="1" />
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
+            <div class="toolbar-section">
+                <select id="font-family" class="toolbar-select">
+                    <option value="Inter">Inter</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                </select>
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
+            <div class="toolbar-section">
+                <input type="number" id="font-size" min="8" max="72" value="20" class="size-input" />
+                <span class="input-suffix">px</span>
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
+            <div class="toolbar-section">
+                <button class="toolbar-btn" data-align="left" title="Align Left">
+                    <span class="material-icons">format_align_left</span>
+                </button>
+                <button class="toolbar-btn" data-align="center" title="Align Center">
+                    <span class="material-icons">format_align_center</span>
+                </button>
+                <button class="toolbar-btn" data-align="right" title="Align Right">
+                    <span class="material-icons">format_align_right</span>
+                </button>
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
+            <div class="toolbar-section">
+                <button class="toolbar-btn" id="font-bold-btn" title="Bold">
+                    <span class="material-icons">format_bold</span>
+                </button>
+                <button class="toolbar-btn" id="font-italic-btn" title="Italic">
+                    <span class="material-icons">format_italic</span>
+                </button>
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
+            <div class="toolbar-section">
+                <input type="color" id="font-color" value="#000000" class="color-picker" />
+                <span class="toolbar-label">Text Color</span>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-properties" class="toolbar-content">
+            <div class="toolbar-section">
+                <span class="toolbar-label" style="color: #9ca3af; font-style: italic;">Select an element to edit properties</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="app">
+        <!-- Left Sidebar -->
+        <aside id="left-panel" class="sidebar">
+            <div class="sidebar-header">
+                <h3>
+                    <span class="material-icons">auto_fix_high</span>
+                    AI Refinements
+                </h3>
+                <div class="sidebar-setting">
+                    <label class="toggle-container">
+                        <input type="checkbox" id="adaptive-interface-toggle" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Auto-refine Layout</span>
+                    </label>
+                </div>
+            </div>
+            <div class="sidebar-content">
+                <p class="hint-text">Select an element to see AI suggestions for improvements</p>
+            </div>
+        </aside>
+
+        <!-- Main Canvas Area -->
+        <main id="center-panel" class="main-content">
+            <div class="canvas-container">
+                <canvas id="design-canvas" width="1000" height="700"></canvas>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside id="right-panel" class="sidebar">
+            <div class="sidebar-header">
+                <h3>
+                    <span class="material-icons">lightbulb</span>
+                    AI Brainstorming
+                </h3>
+                <button id="generate-brainstorming" class="btn btn-primary btn-full">
+                    <span class="material-icons">auto_awesome</span>
+                    Generate Ideas
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div id="brainstorming-suggestions"></div>
+            </div>
+        </aside>
+    </div>
+
+    <script type="module" src="./src/main.ts"></script>
+</body>
+</html>

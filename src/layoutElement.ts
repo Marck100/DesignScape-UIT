@@ -113,23 +113,44 @@ export class LayoutElement {
         ctx.save();
 
         if (this.isSelected) {
-            ctx.strokeStyle = "#ff0000";
+            // Bordo principale elegante blu-viola (come il tema del progetto)
+            ctx.strokeStyle = "#667eea";
             ctx.lineWidth = 2;
+            ctx.setLineDash([]);
+            ctx.strokeRect(this.x - 1, this.y - 1, this.width + 2, this.height + 2);
+
+            // Bordo esterno sottile per contrasto
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 1;
             ctx.strokeRect(this.x - 2, this.y - 2, this.width + 4, this.height + 4);
 
+            // Handle di ridimensionamento eleganti
+            ctx.fillStyle = "#667eea";
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 2;
+            
             for (const h of this.getResizeHandles()) {
+                // Handle principale
                 ctx.fillRect(
                     h.x - this.resizeHandleSize / 2,
                     h.y - this.resizeHandleSize / 2,
                     this.resizeHandleSize,
                     this.resizeHandleSize
                 );
+                
+                // Bordo bianco per contrasto
+                ctx.strokeRect(
+                    h.x - this.resizeHandleSize / 2,
+                    h.y - this.resizeHandleSize / 2,
+                    this.resizeHandleSize,
+                    this.resizeHandleSize
+                );
             }
-
         }
 
         switch (this.type) {
             case "text":
+                console.log('Drawing text element:', this.content, 'at', this.x, this.y);
                 
                 ctx.fillStyle = this.fontColor;
                 ctx.textAlign = this.textAlign;
@@ -139,6 +160,8 @@ export class LayoutElement {
                 fontStyle += `${this.fontSize}px ${this.fontFamily}`;
                 ctx.font = fontStyle;
                 ctx.textBaseline = "top";
+
+                console.log('Font style:', fontStyle, 'Color:', this.fontColor);
 
                 if (!this.content) break;
 

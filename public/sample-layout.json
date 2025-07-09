@@ -1,0 +1,67 @@
+{
+  "name": "Sample Research Layout",
+  "description": "Example layout for testing import/export functionality",
+  "elements": [
+    {
+      "x": 50,
+      "y": 50,
+      "width": 300,
+      "height": 40,
+      "type": "text",
+      "content": "Dr. Alice Researcher",
+      "fontSize": 24,
+      "fontBold": true,
+      "color": "#1a202c"
+    },
+    {
+      "x": 50,
+      "y": 100,
+      "width": 300,
+      "height": 20,
+      "type": "text",
+      "content": "Principal Investigator, HCI Lab",
+      "fontSize": 16,
+      "fontItalic": true,
+      "color": "#4a5568"
+    },
+    {
+      "x": 380,
+      "y": 50,
+      "width": 80,
+      "height": 80,
+      "type": "image",
+      "content": "https://via.placeholder.com/80x80?text=UNIV"
+    },
+    {
+      "x": 50,
+      "y": 140,
+      "width": 300,
+      "height": 100,
+      "type": "text",
+      "content": "📧 alice.researcher@university.edu\n📞 +1 (555) 123-4567\n🌐 hci-lab.university.edu\n📍 Computer Science Building, Room 314\n    University Campus, State 12345",
+      "fontSize": 12,
+      "color": "#374151"
+    },
+    {
+      "x": 50,
+      "y": 250,
+      "width": 410,
+      "height": 60,
+      "type": "box",
+      "content": "",
+      "color": "#667eea"
+    },
+    {
+      "x": 60,
+      "y": 265,
+      "width": 390,
+      "height": 30,
+      "type": "text",
+      "content": "Advancing Human-Computer Interaction through Design Research",
+      "fontSize": 14,
+      "fontBold": true,
+      "color": "#ffffff",
+      "textAlign": "center"
+    }
+  ]
+}
