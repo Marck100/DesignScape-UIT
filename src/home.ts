@@ -1,6 +1,6 @@
 // src/home.ts
 
-import { LayoutElement } from "./layoutElement";
+import { LayoutElement } from "./core/element";
 
 interface TemplateData {
     elements: any[];
@@ -155,6 +155,7 @@ class HomePageManager {
     constructor() {
         this.initializeEventListeners();
         this.setupModal();
+        this.renderTemplatePreview();
     }
 
     private initializeEventListeners(): void {
@@ -310,6 +311,279 @@ class HomePageManager {
         } catch (error) {
             alert('Error importing layout: ' + (error as Error).message);
         }
+    }
+
+    private renderTemplatePreview(): void {
+        const canvases = document.querySelectorAll<HTMLCanvasElement>('.template-canvas');
+        canvases.forEach(canvas => {
+            const templateKey = canvas.dataset.template;
+            if (templateKey && templates[templateKey]) {
+                this.drawTemplateOnCanvas(canvas, templates[templateKey]);
+            }
+        });
+    }
+
+    private drawTemplateOnCanvas(canvas: HTMLCanvasElement, template: TemplateData): void {
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Set canvas dimensions
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        
+        // Create abstract representation based on template type
+        this.drawAbstractPreview(ctx, template.name, canvasWidth, canvasHeight);
+    }
+
+    private drawAbstractPreview(ctx: CanvasRenderingContext2D, templateName: string, width: number, height: number): void {
+        // Set gradient background
+        const gradient = ctx.createLinearGradient(0, 0, width, height);
+        
+        switch (templateName) {
+            case 'Portfolio Showcase':
+                this.drawPortfolioPreview(ctx, width, height);
+                break;
+            case 'Magazine Layout':
+                this.drawMagazinePreview(ctx, width, height);
+                break;
+            case 'Card Layout':
+                this.drawCardPreview(ctx, width, height);
+                break;
+            case 'Poster Design':
+                this.drawPosterPreview(ctx, width, height);
+                break;
+            case 'Landing Page':
+                this.drawLandingPreview(ctx, width, height);
+                break;
+            default:
+                this.drawDefaultPreview(ctx, width, height);
+                break;
+        }
+    }
+
+    private drawPortfolioPreview(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+        // Background gradient
+        const gradient = ctx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, '#f8fafc');
+        gradient.addColorStop(1, '#e2e8f0');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        // Grid of squares representing portfolio items
+        const cols = 4;
+        const rows = 2;
+        const spacing = 8;
+        const totalSpacing = spacing * (cols + 1);
+        const squareSize = (width - totalSpacing) / cols;
+        
+        // Palette più coerente con blu e viola
+        const colors = ['#6366f1', '#8b5cf6', '#3b82f6', '#6366f1', '#a855f7', '#6366f1', '#8b5cf6', '#3b82f6'];
+        
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const x = spacing + col * (squareSize + spacing);
+                const y = height * 0.3 + row * (squareSize + spacing);
+                const colorIndex = row * cols + col;
+                
+                // Rounded rectangle
+                ctx.fillStyle = colors[colorIndex] || '#6366f1';
+                this.roundRect(ctx, x, y, squareSize, squareSize * 0.7, 6);
+                ctx.fill();
+            }
+        }
+
+        // Title bar
+        ctx.fillStyle = '#1e293b';
+        this.roundRect(ctx, width * 0.1, height * 0.1, width * 0.8, height * 0.1, 4);
+        ctx.fill();
+    }
+
+    private drawMagazinePreview(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+        // Background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+
+        // Hero image area (left side)
+        const gradient = ctx.createLinearGradient(0, 0, width * 0.6, height);
+        gradient.addColorStop(0, '#6366f1');
+        gradient.addColorStop(1, '#8b5cf6');
+        ctx.fillStyle = gradient;
+        this.roundRect(ctx, width * 0.05, height * 0.2, width * 0.55, height * 0.6, 8);
+        ctx.fill();
+
+        // Text column (right side)
+        const lineHeight = height * 0.04;
+        for (let i = 0; i < 8; i++) {
+            const lineWidth = width * (0.25 + Math.random() * 0.1);
+            ctx.fillStyle = i < 2 ? '#1e293b' : '#64748b';
+            this.roundRect(ctx, width * 0.65, height * 0.25 + i * lineHeight, lineWidth, lineHeight * 0.6, 2);
+            ctx.fill();
+        }
+
+        // Title
+        ctx.fillStyle = '#0f172a';
+        this.roundRect(ctx, width * 0.1, height * 0.05, width * 0.8, height * 0.08, 4);
+        ctx.fill();
+    }
+
+    private drawCardPreview(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+        // Card background
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetY = 4;
+        this.roundRect(ctx, width * 0.1, height * 0.15, width * 0.8, height * 0.7, 12);
+        ctx.fill();
+        ctx.shadowColor = 'transparent';
+
+        // Header bar
+        const headerGradient = ctx.createLinearGradient(0, 0, width, 0);
+        headerGradient.addColorStop(0, '#667eea');
+        headerGradient.addColorStop(1, '#764ba2');
+        ctx.fillStyle = headerGradient;
+        this.roundRect(ctx, width * 0.1, height * 0.15, width * 0.8, height * 0.2, 12);
+        ctx.fill();
+
+        // Name placeholder
+        ctx.fillStyle = '#ffffff';
+        this.roundRect(ctx, width * 0.15, height * 0.22, width * 0.4, height * 0.06, 3);
+        ctx.fill();
+
+        // Logo area
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        this.roundRect(ctx, width * 0.75, height * 0.2, width * 0.1, height * 0.1, 6);
+        ctx.fill();
+
+        // Contact lines
+        for (let i = 0; i < 4; i++) {
+            ctx.fillStyle = '#94a3b8';
+            const lineWidth = width * (0.2 + Math.random() * 0.15);
+            this.roundRect(ctx, width * 0.15, height * 0.45 + i * height * 0.06, lineWidth, height * 0.025, 2);
+            ctx.fill();
+        }
+    }
+
+    private drawPosterPreview(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+        // Background
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fillRect(0, 0, width, height);
+
+        // Main title bar
+        const titleGradient = ctx.createLinearGradient(0, 0, width, 0);
+        titleGradient.addColorStop(0, '#667eea');
+        titleGradient.addColorStop(1, '#764ba2');
+        ctx.fillStyle = titleGradient;
+        this.roundRect(ctx, width * 0.1, height * 0.1, width * 0.8, height * 0.15, 8);
+        ctx.fill();
+
+        // Central image area - using purple/blue gradient instead of yellow
+        const imageGradient = ctx.createLinearGradient(0, 0, width, height);
+        imageGradient.addColorStop(0, '#8b5cf6');
+        imageGradient.addColorStop(1, '#6366f1');
+        ctx.fillStyle = imageGradient;
+        this.roundRect(ctx, width * 0.2, height * 0.35, width * 0.6, height * 0.3, 10);
+        ctx.fill();
+
+        // Info box
+        ctx.fillStyle = '#e2e8f0';
+        this.roundRect(ctx, width * 0.15, height * 0.75, width * 0.7, height * 0.1, 6);
+        ctx.fill();
+
+        // Subtitle
+        ctx.fillStyle = '#64748b';
+        this.roundRect(ctx, width * 0.25, height * 0.28, width * 0.5, height * 0.04, 3);
+        ctx.fill();
+    }
+
+    private drawLandingPreview(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+        // Background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+
+        // Navigation bar
+        ctx.fillStyle = '#f8fafc';
+        this.roundRect(ctx, width * 0.05, height * 0.05, width * 0.9, height * 0.1, 6);
+        ctx.fill();
+
+        // Nav items
+        for (let i = 0; i < 4; i++) {
+            ctx.fillStyle = '#64748b';
+            this.roundRect(ctx, width * 0.6 + i * width * 0.08, height * 0.08, width * 0.06, height * 0.04, 2);
+            ctx.fill();
+        }
+
+        // Hero split layout
+        // Left - image
+        const heroGradient = ctx.createLinearGradient(0, 0, width * 0.45, height);
+        heroGradient.addColorStop(0, '#3b82f6');
+        heroGradient.addColorStop(1, '#1d4ed8');
+        ctx.fillStyle = heroGradient;
+        this.roundRect(ctx, width * 0.05, height * 0.2, width * 0.4, height * 0.35, 8);
+        ctx.fill();
+
+        // Right - text area
+        ctx.fillStyle = '#f8fafc';
+        this.roundRect(ctx, width * 0.5, height * 0.2, width * 0.45, height * 0.35, 8);
+        ctx.fill();
+
+        // Text lines
+        for (let i = 0; i < 3; i++) {
+            const lineWidth = width * (0.25 + Math.random() * 0.1);
+            ctx.fillStyle = i === 0 ? '#1e293b' : '#64748b';
+            this.roundRect(ctx, width * 0.55, height * 0.25 + i * height * 0.06, lineWidth, height * 0.03, 2);
+            ctx.fill();
+        }
+
+        // CTA button
+        ctx.fillStyle = '#3b82f6';
+        this.roundRect(ctx, width * 0.55, height * 0.45, width * 0.15, height * 0.06, 4);
+        ctx.fill();
+
+        // Feature boxes
+        for (let i = 0; i < 3; i++) {
+            ctx.fillStyle = '#f1f5f9';
+            this.roundRect(ctx, width * 0.05 + i * width * 0.3, height * 0.65, width * 0.25, height * 0.25, 6);
+            ctx.fill();
+        }
+    }
+
+    private drawDefaultPreview(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+        // Simple geometric pattern
+        const gradient = ctx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, '#e2e8f0');
+        gradient.addColorStop(1, '#cbd5e0');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        // Abstract shapes
+        ctx.fillStyle = '#64748b';
+        this.roundRect(ctx, width * 0.2, height * 0.2, width * 0.6, height * 0.1, 6);
+        ctx.fill();
+
+        ctx.fillStyle = '#94a3b8';
+        this.roundRect(ctx, width * 0.1, height * 0.4, width * 0.35, height * 0.4, 8);
+        ctx.fill();
+
+        ctx.fillStyle = '#cbd5e0';
+        this.roundRect(ctx, width * 0.55, height * 0.4, width * 0.35, height * 0.4, 8);
+        ctx.fill();
+    }
+
+    private roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number): void {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
     }
 }
 

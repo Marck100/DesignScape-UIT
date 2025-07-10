@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DesignScope - AI-Powered Layout Designer</title>
-    <link rel="stylesheet" href="src/styles.css">
+    <link rel="stylesheet" href="src/styles/editor.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
@@ -79,6 +79,12 @@
 
     <!-- Properties Toolbar - Separate from header -->
     <div id="properties-toolbar" class="properties-toolbar">
+        <!-- Lock Section -->
+        <div id="lock-section" class="toolbar-section" style="display: none;">
+            <button class="toolbar-btn" id="lock-btn" title="Lock/Unlock element">
+                <span class="material-icons">lock_open</span>
+            </button>
+        </div>
         <!-- Box Properties -->
         <div id="box-properties" class="toolbar-content" style="display: none;">
             <div class="toolbar-section">

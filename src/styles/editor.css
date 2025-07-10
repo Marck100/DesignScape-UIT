@@ -85,7 +85,8 @@ body {
     padding: 12px 20px; /* Stesso padding dell'header */
     display: flex;
     align-items: center;
-    justify-content: center; /* Centrato come prima */
+    justify-content: flex-start;
+    gap: 12px;
     height: 56px;
     transition: all 0.2s ease;
 }
@@ -307,6 +308,21 @@ body {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+}
+.sidebar-content .suggestion-item {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    background-color: #f9fafb;    /* Light default background to indicate clickability */
+    border: 1px solid #e2e8f0;      /* Subtle border around suggestion */
+    margin-bottom: 8px;
+}
+.sidebar-content .suggestion-item:hover {
+    background-color: #f3f4f6;
 }
 
 .hint-text {

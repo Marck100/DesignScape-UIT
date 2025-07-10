@@ -1,5 +1,5 @@
-// ✅ refinementSuggestions.ts (fedele al paper DesignScape con energy-based model)
-import { LayoutElement } from "./layoutElement";
+// src/core/ai-suggestions.ts
+import { LayoutElement } from "./element";
 
 export interface RefinementSuggestion {
   description: string;

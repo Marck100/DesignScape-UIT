@@ -46,6 +46,8 @@ export class LayoutElement {
 
     
     imageCache: Map<string, HTMLImageElement> = new Map();
+    // If locked, element cannot be moved or resized or edited
+    locked: boolean = false;
 
     constructor(options: LayoutElementOptions) {
         this.x = options.x;
