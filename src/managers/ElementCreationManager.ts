@@ -2,7 +2,7 @@
 // Gestisce la creazione di nuovi elementi
 
 import { DesignCanvas } from "../core/canvas";
-import { LayoutElement } from "../core/element";
+import { LayoutElement, LayoutElementOptions } from "../core/element";
 
 export class ElementCreationManager {
     private dc: DesignCanvas;
@@ -78,23 +78,36 @@ export class ElementCreationManager {
 
     private createElement(type: "box" | "text" | "image"): void {
         let content: string = "";
-        
+        // Text input via prompt
         if (type === "text") {
             content = prompt("Inserisci il testo:") ?? "";
-            if (content === null || content.trim() === "") return;
+            if (!content.trim()) return;
         }
-        
+        // Image upload via file selector
         if (type === "image") {
-            content = prompt("Inserisci URL immagine:") ?? "";
-            if (!content || content.trim() === "") return;
-            
-            // Basic URL validation
-            try {
-                new URL(content);
-            } catch {
-                alert("URL non valido!");
-                return;
-            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.onchange = () => {
+                const file = fileInput.files ? fileInput.files[0] : null;
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const dataUrl = reader.result as string;
+                const elementConfig: LayoutElementOptions = {
+                    x: 200,
+                    y: 200,
+                    width: 150,
+                    height: 100,
+                    type: 'image',
+                    content: dataUrl
+                };
+                this.dc.addElement(new LayoutElement(elementConfig));
+                };
+                reader.readAsDataURL(file);
+            };
+            fileInput.click();
+            return;
         }
 
         const elementConfig = {

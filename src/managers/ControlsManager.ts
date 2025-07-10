@@ -190,7 +190,8 @@ export class ControlsManager {
 
     private updateSelectedBoxElement(): void {
         const sel = this.dc.currentSelection;
-        if (sel && sel.type === "box") {
+        // Apply position/size updates for box and image elements
+        if (sel && (sel.type === "box" || sel.type === "image")) {
             const newX = snapToGrid(parseInt(this.boxControls.x.value) || 0);
             const newY = snapToGrid(parseInt(this.boxControls.y.value) || 0);
             const newWidth = validateDimension(parseInt(this.boxControls.width.value) || 50, 20);
@@ -301,12 +302,19 @@ export class ControlsManager {
         const icon = this.lockBtn.querySelector('span.material-icons');
         if (icon) icon.textContent = element.locked ? 'lock' : 'lock_open';
 
-        if (element.type === "box") {
-            // Show box properties
+        if (element.type === "box" || element.type === "image") {
+            // Show box/image position & size
             boxProps.style.display = '';
             textProps.style.display = "none";
             this.updateBoxInputValues(element);
-            this.boxControls.color.value = element.fillColor ?? "#007acc";
+            // Show fill color only for boxes
+            const fillSection = this.boxControls.color.closest('.toolbar-section') as HTMLElement;
+            if (element.type === "box") {
+                fillSection.style.display = '';
+                this.boxControls.color.value = element.fillColor ?? "#007acc";
+            } else {
+                fillSection.style.display = 'none';
+            }
         } else if (element.type === "text") {
             // Show text properties
             textProps.style.display = '';

@@ -4,6 +4,8 @@
 import { DesignCanvas } from "../core/canvas";
 import { ControlsManager } from "./ControlsManager";
 import { generateRefinementSuggestions } from "../core/ai-suggestions";
+import APIService from "../services/APIService";
+import { LayoutElement } from "../core/element";
 
 export class UIManager {
     private dc: DesignCanvas;
@@ -24,59 +26,50 @@ export class UIManager {
     }
 
     setupBrainstormingPanel(): void {
+        console.log('UIManager: setupBrainstormingPanel initializing');
         const generateBtn = document.getElementById('generate-brainstorming') as HTMLButtonElement;
         const suggestionsContainer = document.getElementById('brainstorming-suggestions') as HTMLElement;
+        console.log('UIManager: generateBtn=', generateBtn, 'suggestionsContainer=', suggestionsContainer);
 
         if (!generateBtn || !suggestionsContainer) return;
 
-        generateBtn.addEventListener('click', () => {
-            this.generateBrainstormingIdeas(suggestionsContainer);
-        });
-        // Disable brainstorming when locked or no element
-        this.dc.onElementSelected = (element) => {
-            if (!element || (element as any).locked) {
-                generateBtn.disabled = true;
-                suggestionsContainer.style.display = 'none';
-            } else {
-                generateBtn.disabled = false;
-                suggestionsContainer.style.display = '';
+        // On click, fetch suggestions for entire canvas via APIService
+        generateBtn.addEventListener('click', async () => {
+            console.log('UIManager: generateBtn clicked');
+            const elements = this.dc.getElements();
+            console.log('UIManager: sending elements for brainstorming', elements);
+            const suggestions = await APIService.getBrainstormingSuggestions(elements);
+            console.log('UIManager: received suggestions', suggestions);
+            if (suggestions.length === 0) {
+                suggestionsContainer.innerHTML = '<p class="hint-text">No ideas available.</p>';
+                return;
             }
-        };
-    }
-
-    private generateBrainstormingIdeas(container: HTMLElement): void {
-        const ideas = [
-            "Consider using a grid layout for better organization",
-            "Add visual hierarchy with different font sizes",
-            "Use white space to improve readability", 
-            "Experiment with color contrast for accessibility",
-            "Group related elements closer together",
-            "Try asymmetric layouts for dynamic visual interest",
-            "Add icons to support textual content",
-            "Consider mobile responsiveness",
-            "Use consistent spacing between elements",
-            "Experiment with different typography combinations"
-        ];
-
-        // If selected element is locked, disable brainstorming suggestions
-        const selected = this.dc.currentSelection;
-        if (selected && (selected as any).locked) {
-            container.innerHTML = '<p class="hint-text">Element is locked. Brainstorming disabled.</p>';
-            return;
-        }
-        // Generate 3-5 random ideas
-        const selectedIdeas = ideas
-            .sort(() => Math.random() - 0.5)
-            .slice(0, Math.floor(Math.random() * 3) + 3);
-
-        container.innerHTML = selectedIdeas
-            .map(idea => `
-                <div class="suggestion-item">
+            // Render suggestion name list
+            suggestionsContainer.innerHTML = suggestions.map((s, i) => `
+                <div class="suggestion-item" data-index="${i}">
                     <span class="material-icons">lightbulb_outline</span>
-                    <p>${idea}</p>
+                    <p>${s.name}</p>
                 </div>
-            `)
-            .join('');
+            `).join('');
+            // Attach click handlers to apply layout
+            const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+            items.forEach(item => {
+                item.addEventListener('click', () => {
+                    const idx = parseInt(item.getAttribute('data-index') || '0');
+                    const layoutData = suggestions[idx].layout as any[];
+                    // Apply returned layout
+                    this.dc.clearCanvas();
+                    layoutData.forEach(data => {
+                        this.dc.addElement(new LayoutElement(data));
+                    });
+                    this.dc.draw();
+                    console.log('UIManager: applied suggestion layout', suggestions[idx].name);
+                });
+            });
+        });
+        // Ensure brainstorming controls always visible
+        generateBtn.disabled = false;
+        suggestionsContainer.style.display = '';
     }
 
     setupRefinementSuggestions(): void {

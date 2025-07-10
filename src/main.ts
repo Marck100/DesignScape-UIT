@@ -7,6 +7,7 @@ import { ElementCreationManager } from "./managers/ElementCreationManager";
 import { SaveManager } from "./managers/SaveManager";
 import { HistoryManager } from "./managers/HistoryManager";
 import { UIManager } from "./managers/UIManager";
+import APIService from "./services/APIService";
 
 function loadTemplateOrImportedData(dc: DesignCanvas): void {
     const urlParams = new URLSearchParams(window.location.search);
@@ -143,9 +144,13 @@ window.addEventListener("DOMContentLoaded", () => {
     const controlsManager = new ControlsManager(dc, () => saveManager.autoSave());
     const uiManager = new UIManager(dc, () => saveManager.autoSave());
 
+    // Import APIService for direct brainstorming call
+    // (Ensure APIService is imported at top)
+
     // Setup UI panels
     uiManager.setupUIPanel();
     uiManager.setupBrainstormingPanel();
     uiManager.setupRefinementSuggestions();
     uiManager.setupElementCallbacks(controlsManager);
+
 });
