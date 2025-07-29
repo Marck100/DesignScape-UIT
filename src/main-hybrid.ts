@@ -1,4 +1,5 @@
-// src/main.ts
+// src/main-hybrid.ts
+// Versione ibrida che integra MVC mantenendo compatibilità totale
 
 import { DesignCanvas } from "./core/canvas";
 import { LayoutElement } from "./core/element";
@@ -9,9 +10,134 @@ import { HistoryManager } from "./managers/HistoryManager";
 import { UIManager } from "./managers/UIManager";
 import APIService from "./services/APIService";
 
-// Import del pattern MVC opzionale
-import { EnhancedDesignCanvas } from "./patterns/MVCAdapter";
+// Import dei nuovi moduli MVC
+import { DesignModel } from "./models/DesignModel";
+import { HistoryModel } from "./models/HistoryModel";
+import { TemplateModel } from "./models/TemplateModel";
 
+// Classe wrapper che estende DesignCanvas con i modelli MVC
+class EnhancedDesignCanvas extends DesignCanvas {
+    // Modelli MVC
+    public designModel: DesignModel;
+    public historyModel: HistoryModel;
+    public templateModel: TemplateModel;
+    
+    constructor(canvas: HTMLCanvasElement) {
+        super(canvas);
+        
+        // Inizializza i modelli MVC
+        this.designModel = new DesignModel();
+        this.historyModel = new HistoryModel();
+        this.templateModel = new TemplateModel();
+        
+        // Sincronizza lo stato iniziale
+        this.syncWithModels();
+        this.setupModelListeners();
+    }
+    
+    private syncWithModels(): void {
+        // Sincronizza gli elementi esistenti con il DesignModel
+        const currentElements = this.getElements();
+        if (currentElements.length > 0) {
+            this.designModel.loadElements(currentElements.map(el => ({
+                x: el.x,
+                y: el.y,
+                width: el.width,
+                height: el.height,
+                type: el.type,
+                content: el.content,
+                fontSize: el.fontSize,
+                fontBold: el.fontBold,
+                fontItalic: el.fontItalic,
+                fontColor: el.fontColor,
+                fontFamily: el.fontFamily,
+                textAlign: el.textAlign,
+                fillColor: el.fillColor
+            })));
+        }
+    }
+    
+    private setupModelListeners(): void {
+        // Ascolta i cambiamenti del DesignModel e li applica al canvas
+        this.designModel.addEventListener('elementsChanged', (data: any) => {
+            // Sincronizza gli elementi del canvas con il modello
+            this.syncElementsFromModel();
+        });
+        
+        this.designModel.addEventListener('selectionChanged', (selectedElements: LayoutElement[]) => {
+            // Aggiorna la selezione nel canvas tradizionale
+            this.elements.forEach(el => el.isSelected = false);
+            selectedElements.forEach(modelEl => {
+                const canvasEl = this.elements.find(el => 
+                    el.x === modelEl.x && el.y === modelEl.y && 
+                    el.width === modelEl.width && el.height === modelEl.height
+                );
+                if (canvasEl) canvasEl.isSelected = true;
+            });
+            this.draw();
+        });
+    }
+    
+    private syncElementsFromModel(): void {
+        const modelElements = this.designModel.getElements();
+        
+        // Sostituisci gli elementi del canvas con quelli del modello
+        this.elements = modelElements.map(modelEl => {
+            const canvasEl = new LayoutElement({
+                x: modelEl.x,
+                y: modelEl.y,
+                width: modelEl.width,
+                height: modelEl.height,
+                type: modelEl.type,
+                content: modelEl.content,
+                fontSize: modelEl.fontSize,
+                fontBold: modelEl.fontBold,
+                fontItalic: modelEl.fontItalic,
+                fontColor: modelEl.fontColor,
+                fontFamily: modelEl.fontFamily,
+                textAlign: modelEl.textAlign,
+                fillColor: modelEl.fillColor
+            });
+            canvasEl.isSelected = modelEl.isSelected;
+            return canvasEl;
+        });
+        
+        this.draw();
+    }
+    
+    // Override dei metodi per sincronizzare con i modelli
+    addElement(element: LayoutElement): void {
+        super.addElement(element);
+        
+        // Aggiungi anche al DesignModel
+        this.designModel.addElement(element);
+        
+        // Salva nello storico
+        this.historyModel.saveState(this.designModel.getState());
+    }
+    
+    clearCanvas(): void {
+        super.clearCanvas();
+        this.designModel.clearElements();
+        this.historyModel.clear();
+    }
+    
+    // Metodi di compatibilità per i template
+    loadTemplate(templateName: string, templateData?: any): void {
+        if (templateData) {
+            const enhancedElements = this.templateModel.enhanceTemplateElements(templateData.elements, templateName);
+            this.designModel.loadElements(enhancedElements);
+            this.syncElementsFromModel();
+        }
+    }
+    
+    createUnsplashImage(config: {x: number, y: number, width: number, height: number, category: string}): void {
+        // Usa la logica originale mantenendo la compatibilità
+        createUnsplashImage(this, config);
+    }
+}
+
+// Mantieni tutte le funzioni originali per compatibilità
 function loadTemplateOrImportedData(dc: DesignCanvas): void {
     const urlParams = new URLSearchParams(window.location.search);
     const isImport = urlParams.get('import') === 'true';
@@ -714,29 +840,13 @@ function createImagePlaceholder(dc: DesignCanvas, config: {x: number, y: number,
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    console.log('DesignScope loading...');
-    
     const canvas = document.getElementById("design-canvas") as HTMLCanvasElement;
-    if (!canvas) {
-        console.error('Canvas element not found!');
-        return;
-    }
-    
-    // Create enhanced canvas with MVC capabilities (fallback to original if MVC fails)
-    let dc: DesignCanvas | EnhancedDesignCanvas;
-    try {
-        dc = new EnhancedDesignCanvas(canvas);
-        console.log('DesignScope loaded with MVC pattern');
-    } catch (error) {
-        console.warn('MVC enhancement failed, using original canvas:', error);
-        dc = new DesignCanvas(canvas);
-        console.log('DesignScope loaded with original pattern');
-    }
+    const dc = new EnhancedDesignCanvas(canvas);
 
     // Load template, imported data, or default layout
     loadTemplateOrImportedData(dc);
 
-    // Initialize managers (works with both original and enhanced canvas)
+    // Initialize managers (tutte le funzionalità originali mantenute)
     const saveManager = new SaveManager(dc);
     const historyManager = new HistoryManager(dc);
     const elementCreationManager = new ElementCreationManager(dc);
@@ -749,21 +859,12 @@ window.addEventListener("DOMContentLoaded", () => {
     uiManager.setupRefinementSuggestions();
     uiManager.setupElementCallbacks(controlsManager);
 
-    // Expose for debugging and compatibility
+    // Esponi per debugging e compatibilità
     (window as any).dc = dc;
+    (window as any).designModel = dc.designModel;
+    (window as any).historyModel = dc.historyModel;
+    (window as any).templateModel = dc.templateModel;
     (window as any).saveManager = saveManager;
     (window as any).uiManager = uiManager;
     (window as any).controlsManager = controlsManager;
-    
-    // Expose MVC components if available
-    if (dc instanceof EnhancedDesignCanvas) {
-        (window as any).mvc = {
-            model: dc.getMVCModel(),
-            view: dc.getMVCView(),
-            controller: dc.getMVCController()
-        };
-        console.log('MVC components accessible via window.mvc');
-    }
-    
-    console.log('DesignScope ready!');
 });
