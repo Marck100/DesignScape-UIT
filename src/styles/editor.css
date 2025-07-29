@@ -325,6 +325,49 @@ body {
     background-color: #f3f4f6;
 }
 
+.sidebar-content .suggestion-item.clickable {
+    cursor: pointer;
+}
+
+.auto-applied-suggestion {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 6px;
+    background-color: #f0f9ff;
+    border: 1px solid #bae6fd;
+    margin-bottom: 16px;
+}
+
+.auto-applied-suggestion .material-icons {
+    font-size: 20px;
+    margin-top: 2px;
+}
+
+.auto-applied-suggestion p {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.auto-applied-suggestion small {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.other-suggestions {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 12px;
+}
+
+.other-suggestions p {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
 .hint-text {
     color: #6b7280;
     font-size: 14px;

@@ -48,7 +48,7 @@ export class UIManager {
             suggestionsContainer.innerHTML = suggestions.map((s, i) => `
                 <div class="suggestion-item" data-index="${i}">
                     <span class="material-icons">lightbulb_outline</span>
-                    <p>${s.name}</p>
+                    <p>${typeof s === 'string' ? s : (s as any).name || 'Suggestion ' + (i+1)}</p>
                 </div>
             `).join('');
             // Attach click handlers to apply layout
@@ -56,14 +56,15 @@ export class UIManager {
             items.forEach(item => {
                 item.addEventListener('click', () => {
                     const idx = parseInt(item.getAttribute('data-index') || '0');
-                    const layoutData = suggestions[idx].layout as any[];
+                    const suggestion = suggestions[idx] as any;
+                    const layoutData = (typeof suggestion === 'object' && suggestion.layout) ? suggestion.layout as any[] : [];
                     // Apply returned layout
                     this.dc.clearCanvas();
                     layoutData.forEach(data => {
                         this.dc.addElement(new LayoutElement(data));
                     });
                     this.dc.draw();
-                    console.log('UIManager: applied suggestion layout', suggestions[idx].name);
+                    console.log('UIManager: applied suggestion layout', (suggestions[idx] as any).name || 'layout');
                 });
             });
         });
@@ -95,10 +96,10 @@ export class UIManager {
     }
 
     private enableAdaptiveInterface(container: HTMLElement): void {
-        // Listen for element selection to show refinement suggestions
+        // Listen for element selection to automatically apply best suggestion
         this.dc.onElementSelected = (element) => {
             if (element) {
-                this.showRefinementSuggestions(container, element);
+                this.autoApplyBestSuggestion(container, element);
             } else {
                 this.showDefaultRefinementText(container);
             }
@@ -106,11 +107,17 @@ export class UIManager {
     }
 
     private disableAdaptiveInterface(container: HTMLElement): void {
-        this.dc.onElementSelected = null;
-        this.showDefaultRefinementText(container);
+        // When disabled, show manual suggestions instead
+        this.dc.onElementSelected = (element) => {
+            if (element) {
+                this.showRefinementSuggestions(container, element, false); // false = no auto-apply
+            } else {
+                this.showDefaultRefinementText(container);
+            }
+        };
     }
 
-    private showRefinementSuggestions(container: HTMLElement, element: any): void {
+    private showRefinementSuggestions(container: HTMLElement, element: any, autoApply: boolean = true): void {
         const suggestions = generateRefinementSuggestions(
             element,
             this.dc.getElements(),
@@ -137,13 +144,15 @@ export class UIManager {
                     <p>${suggestion.description}</p>
                 </div>
             `).join('');
-            // Attach click handlers to apply suggestions
-            const elems = container.querySelectorAll('.suggestion-item');
-            elems.forEach((item, idx) => {
-                item.addEventListener('click', () => {
-                    suggestions[idx].apply();
+            // Attach click handlers to apply suggestions (only when not auto-applying)
+            if (!autoApply) {
+                const elems = container.querySelectorAll('.suggestion-item');
+                elems.forEach((item, idx) => {
+                    item.addEventListener('click', () => {
+                        suggestions[idx].apply();
+                    });
                 });
-            });
+            }
         } else {
             container.innerHTML = '<p class="hint-text">No specific suggestions for this element.</p>';
         }
@@ -151,6 +160,67 @@ export class UIManager {
 
     private showDefaultRefinementText(container: HTMLElement): void {
         container.innerHTML = '<p class="hint-text">Select an element to see AI suggestions for improvements</p>';
+    }
+
+    private autoApplyBestSuggestion(container: HTMLElement, element: any): void {
+        const suggestions = generateRefinementSuggestions(
+            element,
+            this.dc.getElements(),
+            1000, // canvas width
+            700,  // canvas height
+            () => {
+                this.dc.draw();
+                this.dc.saveState();
+                this.autoSaveCallback();
+            }
+        );
+        
+        // If element is locked, hide refinement panel
+        if ((element as any).locked) {
+            container.style.display = 'none';
+            return;
+        }
+        
+        // Ensure panel is visible when unlocked
+        container.style.display = '';
+        
+        if (suggestions.length > 0) {
+            // Automatically apply the best suggestion (first one, as they're sorted by energy improvement)
+            const bestSuggestion = suggestions[0];
+            bestSuggestion.apply();
+            
+            // Show feedback about what was applied
+            container.innerHTML = `
+                <div class="auto-applied-suggestion">
+                    <span class="material-icons" style="color: #4caf50;">check_circle</span>
+                    <p><strong>Auto-applied:</strong> ${bestSuggestion.description}</p>
+                    <small>Energy improvement: ${bestSuggestion.energyImprovement.toFixed(1)}</small>
+                </div>
+                ${suggestions.length > 1 ? `
+                <div class="other-suggestions">
+                    <p><strong>Other suggestions:</strong></p>
+                    ${suggestions.slice(1).map(suggestion => `
+                        <div class="suggestion-item clickable">
+                            <span class="material-icons">auto_fix_high</span>
+                            <p>${suggestion.description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+            `;
+            
+            // Add click handlers for remaining suggestions
+            if (suggestions.length > 1) {
+                const elems = container.querySelectorAll('.other-suggestions .suggestion-item');
+                elems.forEach((item, idx) => {
+                    item.addEventListener('click', () => {
+                        suggestions[idx + 1].apply(); // +1 because we skip the first (already applied)
+                    });
+                });
+            }
+        } else {
+            container.innerHTML = '<p class="hint-text">No specific suggestions for this element.</p>';
+        }
     }
 
     setupElementCallbacks(controlsManager: ControlsManager): void {
@@ -167,9 +237,15 @@ export class UIManager {
             const adaptiveToggle = document.getElementById('adaptive-interface-toggle') as HTMLInputElement;
             const suggestionsContainer = document.querySelector('#left-panel .sidebar-content') as HTMLElement;
             
-            if (adaptiveToggle?.checked && suggestionsContainer) {
+            if (suggestionsContainer) {
                 if (element && !(element as any).locked) {
-                    this.showRefinementSuggestions(suggestionsContainer, element);
+                    if (adaptiveToggle?.checked) {
+                        // Auto-apply mode: apply best suggestion automatically
+                        this.autoApplyBestSuggestion(suggestionsContainer, element);
+                    } else {
+                        // Manual mode: show suggestions for user to click
+                        this.showRefinementSuggestions(suggestionsContainer, element, false);
+                    }
                 } else {
                     this.showDefaultRefinementText(suggestionsContainer);
                 }

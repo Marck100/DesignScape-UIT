@@ -258,18 +258,77 @@ export class LayoutElement {
                 break;
 
             case "image":
-                if (!this.content) break;
+                if (!this.content) {
+                    // Disegna un placeholder se non c'è contenuto
+                    ctx.fillStyle = "#f0f0f0";
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    ctx.strokeStyle = "#ccc";
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(this.x, this.y, this.width, this.height);
+                    
+                    ctx.fillStyle = "#666";
+                    ctx.font = "14px Arial";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText("No Image", this.x + this.width/2, this.y + this.height/2);
+                    break;
+                }
 
                 const cached = this.imageCache.get(this.content);
                 
                 if (cached) {
                     ctx.drawImage(cached, this.x, this.y, this.width, this.height);
                 } else {
+                    // Disegna placeholder mentre carica
+                    ctx.fillStyle = "#f5f5f5";
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    ctx.strokeStyle = "#ddd";
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(this.x, this.y, this.width, this.height);
+                    
+                    ctx.fillStyle = "#999";
+                    ctx.font = "12px Arial";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText("Loading...", this.x + this.width/2, this.y + this.height/2);
+                    
                     const img = new Image();
+                    img.crossOrigin = "anonymous"; // Per evitare problemi CORS
                     img.src = this.content;
                     img.onload = () => {
-                    this.imageCache.set(this.content!, img);
-                    ctx.drawImage(img, this.x, this.y, this.width, this.height);
+                        this.imageCache.set(this.content!, img);
+                        // Triggera un redraw del canvas parent se possibile
+                        const canvas = ctx.canvas;
+                        const event = new CustomEvent('imageLoaded', { detail: { element: this } });
+                        canvas.dispatchEvent(event);
+                    };
+                    img.onerror = () => {
+                        console.warn('Failed to load image:', this.content);
+                        // Cache un'immagine di errore
+                        const errorImg = new Image();
+                        const errorCanvas = document.createElement('canvas');
+                        errorCanvas.width = this.width;
+                        errorCanvas.height = this.height;
+                        const errorCtx = errorCanvas.getContext('2d')!;
+                        
+                        errorCtx.fillStyle = "#ffebee";
+                        errorCtx.fillRect(0, 0, this.width, this.height);
+                        errorCtx.strokeStyle = "#f44336";
+                        errorCtx.lineWidth = 2;
+                        errorCtx.strokeRect(2, 2, this.width-4, this.height-4);
+                        
+                        errorCtx.fillStyle = "#f44336";
+                        errorCtx.font = "14px Arial";
+                        errorCtx.textAlign = "center";
+                        errorCtx.textBaseline = "middle";
+                        errorCtx.fillText("Error", this.width/2, this.height/2);
+                        
+                        errorImg.src = errorCanvas.toDataURL();
+                        this.imageCache.set(this.content!, errorImg);
+                        
+                        const canvas = ctx.canvas;
+                        const event = new CustomEvent('imageLoaded', { detail: { element: this } });
+                        canvas.dispatchEvent(event);
                     };
                 }
                 break;

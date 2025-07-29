@@ -96,6 +96,12 @@ export class DesignCanvas {
         this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this));
         this.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
         this.canvas.addEventListener("dblclick", this.onDoubleClick.bind(this));
+        
+        // Listener per il caricamento delle immagini
+        this.canvas.addEventListener("imageLoaded", ((e: CustomEvent) => {
+            console.log('Image loaded, redrawing canvas');
+            this.draw();
+        }) as EventListener);
     }
 
     private snapToGrid(value: number, gridSize: number = 20): number {
