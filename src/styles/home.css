@@ -26,7 +26,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
     height: 70px;
@@ -146,9 +146,12 @@ body {
 
 .templates-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
     margin-bottom: 40px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .template-card {
@@ -159,6 +162,11 @@ body {
     transition: all 0.3s ease;
     cursor: pointer;
     border: 2px solid transparent;
+    padding: 24px;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .template-card:hover {
@@ -167,70 +175,23 @@ body {
     border-color: #667eea;
 }
 
-.template-preview {
-    position: relative;
-    height: 200px;
-    background: #ffffff;
-    overflow: hidden;
-    border-bottom: 1px solid #f1f5f9;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.template-info {
+    text-align: center;
 }
 
-.template-canvas {
-    width: 100%;
-    height: 100%;
-    border-radius: 6px;
-    max-width: 300px;
-    max-height: 168px;
-    object-fit: contain;
+.template-info h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 6px;
+    line-height: 1.3;
 }
 
-.preview-wireframe {
-    width: 100%;
-    height: 100%;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    background: #fafbfc;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Portfolio Layout */
-.preview-portfolio {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr 1fr;
-    gap: 8px;
-    padding: 12px;
-}
-
-.preview-portfolio .title {
-    grid-column: 1 / -1;
-    height: 20px;
-    background: #4f46e5;
-    border-radius: 4px;
-    margin-bottom: 8px;
-}
-
-.preview-portfolio .project {
-    background: #e5e7eb;
-    border-radius: 4px;
-    position: relative;
-}
-
-.preview-portfolio .project::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60%;
-    height: 60%;
-    background: #9ca3af;
-    border-radius: 2px;
+.template-info p {
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 0;
 }
 
 /* Sidebar Layout */
@@ -478,58 +439,21 @@ body {
     display: none;
 }
 
-.blank-project .template-preview {
+.blank-project {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: #f8fafc;
+    height: 140px;
 }
 
 .blank-icon {
-    width: 60px;
-    height: 60px;
-    border: 2px dashed #cbd5e0;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.blank-icon .material-icons {
-    font-size: 32px;
-    color: #9ca3af;
-}
-
-.template-info {
-    padding: 20px;
-}
-
-.template-info h4 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1a202c;
     margin-bottom: 8px;
 }
 
-.template-info p {
-    color: #6b7280;
-    font-size: 14px;
-    margin-bottom: 12px;
-}
-
-.template-tags {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.tag {
-    background: #f1f5f9;
-    color: #475569;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
+.blank-icon .material-icons {
+    font-size: 28px;
+    color: #9ca3af;
 }
 
 /* Features Section */

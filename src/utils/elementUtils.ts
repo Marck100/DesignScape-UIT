@@ -1,7 +1,8 @@
-// src/shared/elementUtils.ts
+// src/utils/elementUtils.ts
 // Funzioni di utilità condivise per la gestione degli elementi
 
-import { LayoutElement, ElementType } from "../core/element";
+import { LayoutElement } from "../core/element";
+import { ElementType } from "../types/element";
 
 /**
  * Configurazione di default per i nuovi elementi

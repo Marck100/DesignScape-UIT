@@ -1,26 +1,4 @@
-export type ElementType = "text" | "image" | "box";
-export type TextAlign = "left" | "center" | "right";
-
-export interface LayoutElementOptions {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-
-    type: ElementType;
-    content?: string;
-    fillColor?: string; 
-
-    fontFamily?: string;
-    fontSize?: number;
-    fontColor?: string;
-    fontBold?: boolean;
-    fontItalic?: boolean;
-
-    textAlign?: TextAlign 
-
-    
-};
+import { ElementType, TextAlign, LayoutElementOptions } from "../types/element";
 
 export class LayoutElement {
     x: number;

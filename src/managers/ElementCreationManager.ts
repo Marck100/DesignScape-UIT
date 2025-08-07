@@ -2,7 +2,9 @@
 // Gestisce la creazione di nuovi elementi
 
 import { DesignCanvas } from "../core/canvas";
-import { LayoutElement, LayoutElementOptions } from "../core/element";
+import { LayoutElement } from "../core/element";
+import { LayoutElementOptions } from "../types/element";
+import { createDefaultElement, promptForElementContent, isValidText } from "../utils/elementUtils";
 
 export class ElementCreationManager {
     private dc: DesignCanvas;
@@ -77,13 +79,17 @@ export class ElementCreationManager {
     }
 
     private createElement(type: "box" | "text" | "image"): void {
-        let content: string = "";
-        // Text input via prompt
+        // Per text e image, usa le utility per ottenere il contenuto
         if (type === "text") {
-            content = prompt("Inserisci il testo:") ?? "";
-            if (!content.trim()) return;
+            const content = promptForElementContent(type);
+            if (!content) return; // L'utente ha annullato o inserito testo vuoto
+            
+            const element = createDefaultElement(type, content);
+            this.dc.addElement(element);
+            return;
         }
-        // Image upload via file selector
+        
+        // Per le immagini, mantieni il file selector esistente
         if (type === "image") {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
@@ -94,15 +100,8 @@ export class ElementCreationManager {
                 const reader = new FileReader();
                 reader.onload = () => {
                     const dataUrl = reader.result as string;
-                const elementConfig: LayoutElementOptions = {
-                    x: 200,
-                    y: 200,
-                    width: 150,
-                    height: 100,
-                    type: 'image',
-                    content: dataUrl
-                };
-                this.dc.addElement(new LayoutElement(elementConfig));
+                    const element = createDefaultElement('image', dataUrl);
+                    this.dc.addElement(element);
                 };
                 reader.readAsDataURL(file);
             };
@@ -110,15 +109,8 @@ export class ElementCreationManager {
             return;
         }
 
-        const elementConfig = {
-            x: 200,
-            y: 200,
-            width: type === "text" ? 200 : 150,
-            height: type === "text" ? 40 : 100,
-            type: type,
-            content
-        };
-
-        this.dc.addElement(new LayoutElement(elementConfig));
+        // Per box, usa la configurazione di default
+        const element = createDefaultElement(type);
+        this.dc.addElement(element);
     }
 }
