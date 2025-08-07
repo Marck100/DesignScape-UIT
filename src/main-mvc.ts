@@ -1,6 +1,6 @@
-// src/main.ts
+// src/main-mvc.ts
+// Versione MVC del main.ts che mantiene compatibilità totale
 
-import { DesignCanvas } from "./core/canvas";
 import { LayoutElement } from "./core/element";
 import { ControlsManager } from "./managers/ControlsManager";
 import { ElementCreationManager } from "./managers/ElementCreationManager";
@@ -9,10 +9,11 @@ import { HistoryManager } from "./managers/HistoryManager";
 import { UIManager } from "./managers/UIManager";
 import APIService from "./services/APIService";
 
-// Import del pattern MVC opzionale
-import { EnhancedDesignCanvas } from "./patterns/MVCAdapter";
+// Import del nuovo sistema MVC
+import { EnhancedDesignCanvas } from "./architecture/MVC";
 
-function loadTemplateOrImportedData(dc: DesignCanvas): void {
+// Mantieni tutte le funzioni originali esattamente come erano
+function loadTemplateOrImportedData(dc: EnhancedDesignCanvas): void {
     const urlParams = new URLSearchParams(window.location.search);
     const isImport = urlParams.get('import') === 'true';
     const templateName = urlParams.get('template');
@@ -59,7 +60,7 @@ function loadTemplateOrImportedData(dc: DesignCanvas): void {
     loadDefaultLayout(dc);
 }
 
-function loadTemplateElements(dc: DesignCanvas, elementsData: any[], templateType: string): void {
+function loadTemplateElements(dc: EnhancedDesignCanvas, elementsData: any[], templateType: string): void {
     // Clear existing elements first
     dc.clearCanvas();
     
@@ -83,7 +84,7 @@ function loadTemplateElements(dc: DesignCanvas, elementsData: any[], templateTyp
     dc.saveState();
 }
 
-function enhanceTemplateImage(dc: DesignCanvas, imageData: any, templateType: string): void {
+function enhanceTemplateImage(dc: EnhancedDesignCanvas, imageData: any, templateType: string): void {
     // Determina la categoria dell'immagine basata sul template e contenuto
     let category = getImageCategory(imageData.content, templateType);
     
@@ -187,7 +188,7 @@ function getTemplateBoxColor(templateType: string): string {
     }
 }
 
-function loadElementsFromData(dc: DesignCanvas, elementsData: any[]): void {
+function loadElementsFromData(dc: EnhancedDesignCanvas, elementsData: any[]): void {
     // Clear existing elements first
     dc.clearCanvas();
     
@@ -209,7 +210,7 @@ function loadElementsFromData(dc: DesignCanvas, elementsData: any[]): void {
     dc.saveState();
 }
 
-function loadDefaultLayout(dc: DesignCanvas): void {
+function loadDefaultLayout(dc: EnhancedDesignCanvas): void {
     console.log('Creating modern business template...');
     
     // Reset category counters for new layout
@@ -405,19 +406,19 @@ function loadDefaultLayout(dc: DesignCanvas): void {
         textAlign: "center"
     }));
 
-    console.log('Total elements after adding all:', dc['elements'].length);
+    console.log('Total elements after adding all:', dc.getElements().length);
 
     // Force redraw
     dc.draw();
     dc.saveState();
 }
 
-// Cache globale per le immagini
+// Cache globale per le immagini (mantenuto identico al codice originale)
 const imageCache = new Map<string, string>();
 const imageCacheStatus = new Map<string, 'loading' | 'loaded' | 'error'>();
 const categoryImageCount = new Map<string, number>(); // Traccia quante immagini per categoria
 
-function createUnsplashImage(dc: DesignCanvas, config: {x: number, y: number, width: number, height: number, category: string}): void {
+function createUnsplashImage(dc: EnhancedDesignCanvas, config: {x: number, y: number, width: number, height: number, category: string}): void {
     // Incrementa il contatore per questa categoria per ottenere immagini diverse
     const currentCount = categoryImageCount.get(config.category) || 0;
     categoryImageCount.set(config.category, currentCount + 1);
@@ -576,9 +577,9 @@ function getImageUrlsForCategory(category: string, width: number, height: number
     ];
 }
 
-function replaceImageElement(dc: DesignCanvas, config: {x: number, y: number, width: number, height: number}, imageUrl: string): void {
+function replaceImageElement(dc: EnhancedDesignCanvas, config: {x: number, y: number, width: number, height: number}, imageUrl: string): void {
     // Trova e sostituisci l'elemento placeholder
-    const elements = dc['elements'];
+    const elements = dc.getElements();
     const elementIndex = elements.findIndex(el => 
         el.x === config.x && el.y === config.y && 
         el.width === config.width && el.height === config.height && 
@@ -676,7 +677,7 @@ function createPlaceholderDataURL(width: number, height: number, text: string): 
     return tempCanvas.toDataURL();
 }
 
-function createImagePlaceholder(dc: DesignCanvas, config: {x: number, y: number, width: number, height: number, text: string}): void {
+function createImagePlaceholder(dc: EnhancedDesignCanvas, config: {x: number, y: number, width: number, height: number, text: string}): void {
     // Crea un canvas temporaneo per generare un'immagine placeholder
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = config.width;
@@ -714,7 +715,7 @@ function createImagePlaceholder(dc: DesignCanvas, config: {x: number, y: number,
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    console.log('DesignScope loading...');
+    console.log('DesignScope - MVC Enhanced version loading...');
     
     const canvas = document.getElementById("design-canvas") as HTMLCanvasElement;
     if (!canvas) {
@@ -722,48 +723,38 @@ window.addEventListener("DOMContentLoaded", () => {
         return;
     }
     
-    // Create enhanced canvas with MVC capabilities (fallback to original if MVC fails)
-    let dc: DesignCanvas | EnhancedDesignCanvas;
-    try {
-        dc = new EnhancedDesignCanvas(canvas);
-        console.log('DesignScope loaded with MVC pattern');
-    } catch (error) {
-        console.warn('MVC enhancement failed, using original canvas:', error);
-        dc = new DesignCanvas(canvas);
-        console.log('DesignScope loaded with original pattern');
-    }
+    // Use enhanced canvas with MVC capabilities
+    const dc = new EnhancedDesignCanvas(canvas);
 
     // Load template, imported data, or default layout
     loadTemplateOrImportedData(dc);
 
-    // Initialize managers (works with both original and enhanced canvas)
+    // Initialize managers (exactly as before)
     const saveManager = new SaveManager(dc);
     const historyManager = new HistoryManager(dc);
     const elementCreationManager = new ElementCreationManager(dc);
     const controlsManager = new ControlsManager(dc, () => saveManager.autoSave());
     const uiManager = new UIManager(dc, () => saveManager.autoSave());
 
-    // Setup UI panels
+    // Setup UI panels (exactly as before)
     uiManager.setupUIPanel();
     uiManager.setupBrainstormingPanel();
     uiManager.setupRefinementSuggestions();
     uiManager.setupElementCallbacks(controlsManager);
 
-    // Expose for debugging and compatibility
+    // Expose for debugging and compatibility (exactly as before)
     (window as any).dc = dc;
     (window as any).saveManager = saveManager;
     (window as any).uiManager = uiManager;
     (window as any).controlsManager = controlsManager;
     
-    // Expose MVC components if available
-    if (dc instanceof EnhancedDesignCanvas) {
-        (window as any).mvc = {
-            model: dc.getMVCModel(),
-            view: dc.getMVCView(),
-            controller: dc.getMVCController()
-        };
-        console.log('MVC components accessible via window.mvc');
-    }
+    // Additional MVC debugging and access
+    (window as any).mvc = {
+        model: dc.getMVCModel(),
+        view: dc.getMVCView(),
+        controller: dc.getMVCController()
+    };
     
-    console.log('DesignScope ready!');
+    console.log('DesignScope MVC Enhanced - Ready!');
+    console.log('MVC components accessible via window.mvc');
 });

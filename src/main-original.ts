@@ -9,9 +9,6 @@ import { HistoryManager } from "./managers/HistoryManager";
 import { UIManager } from "./managers/UIManager";
 import APIService from "./services/APIService";
 
-// Import del pattern MVC opzionale
-import { EnhancedDesignCanvas } from "./patterns/MVCAdapter";
-
 function loadTemplateOrImportedData(dc: DesignCanvas): void {
     const urlParams = new URLSearchParams(window.location.search);
     const isImport = urlParams.get('import') === 'true';
@@ -714,34 +711,21 @@ function createImagePlaceholder(dc: DesignCanvas, config: {x: number, y: number,
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    console.log('DesignScope loading...');
-    
     const canvas = document.getElementById("design-canvas") as HTMLCanvasElement;
-    if (!canvas) {
-        console.error('Canvas element not found!');
-        return;
-    }
-    
-    // Create enhanced canvas with MVC capabilities (fallback to original if MVC fails)
-    let dc: DesignCanvas | EnhancedDesignCanvas;
-    try {
-        dc = new EnhancedDesignCanvas(canvas);
-        console.log('DesignScope loaded with MVC pattern');
-    } catch (error) {
-        console.warn('MVC enhancement failed, using original canvas:', error);
-        dc = new DesignCanvas(canvas);
-        console.log('DesignScope loaded with original pattern');
-    }
+    const dc = new DesignCanvas(canvas);
 
     // Load template, imported data, or default layout
     loadTemplateOrImportedData(dc);
 
-    // Initialize managers (works with both original and enhanced canvas)
+    // Initialize managers
     const saveManager = new SaveManager(dc);
     const historyManager = new HistoryManager(dc);
     const elementCreationManager = new ElementCreationManager(dc);
     const controlsManager = new ControlsManager(dc, () => saveManager.autoSave());
     const uiManager = new UIManager(dc, () => saveManager.autoSave());
+
+    // Import APIService for direct brainstorming call
+    // (Ensure APIService is imported at top)
 
     // Setup UI panels
     uiManager.setupUIPanel();
@@ -749,21 +733,4 @@ window.addEventListener("DOMContentLoaded", () => {
     uiManager.setupRefinementSuggestions();
     uiManager.setupElementCallbacks(controlsManager);
 
-    // Expose for debugging and compatibility
-    (window as any).dc = dc;
-    (window as any).saveManager = saveManager;
-    (window as any).uiManager = uiManager;
-    (window as any).controlsManager = controlsManager;
-    
-    // Expose MVC components if available
-    if (dc instanceof EnhancedDesignCanvas) {
-        (window as any).mvc = {
-            model: dc.getMVCModel(),
-            view: dc.getMVCView(),
-            controller: dc.getMVCController()
-        };
-        console.log('MVC components accessible via window.mvc');
-    }
-    
-    console.log('DesignScope ready!');
 });

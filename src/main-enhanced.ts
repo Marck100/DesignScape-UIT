@@ -1,4 +1,5 @@
-// src/main.ts
+// src/main-enhanced.ts
+// Versione migliorata che aggiunge pattern MVC gradualmente mantenendo compatibilità totale
 
 import { DesignCanvas } from "./core/canvas";
 import { LayoutElement } from "./core/element";
@@ -9,9 +10,71 @@ import { HistoryManager } from "./managers/HistoryManager";
 import { UIManager } from "./managers/UIManager";
 import APIService from "./services/APIService";
 
-// Import del pattern MVC opzionale
-import { EnhancedDesignCanvas } from "./patterns/MVCAdapter";
+// Import degli adapter MVC
+import { CanvasAdapter } from "./architecture/CanvasAdapter";
 
+// Enhanced version of DesignCanvas that adds MVC capabilities while maintaining compatibility
+class EnhancedDesignCanvas extends DesignCanvas {
+    private adapter: CanvasAdapter;
+    
+    constructor(canvas: HTMLCanvasElement) {
+        super(canvas);
+        
+        // Inizializza l'adapter MVC
+        this.adapter = new CanvasAdapter(this);
+        
+        // Setup MVC event listeners
+        this.setupMVCIntegration();
+        
+        console.log('DesignCanvas enhanced with MVC adapter');
+    }
+    
+    private setupMVCIntegration(): void {
+        // Ascolta gli eventi dell'adapter per debugging e monitoring
+        this.adapter.addEventListener('elementAdded', (element: LayoutElement) => {
+            console.log('MVC: Element added', element.type);
+        });
+        
+        this.adapter.addEventListener('elementsCleared', () => {
+            console.log('MVC: Canvas cleared');
+        });
+        
+        this.adapter.addEventListener('canvasUpdated', () => {
+            console.log('MVC: Canvas updated');
+        });
+    }
+    
+    // Expose MVC adapter for future extensions
+    public getMVCAdapter(): CanvasAdapter {
+        return this.adapter;
+    }
+    
+    // Enhanced methods that use both original logic and MVC patterns
+    public addElement(element: LayoutElement): void {
+        // Call original method (which will trigger MVC events through adapter)
+        super.addElement(element);
+        
+        // Additional MVC-style logging and validation
+        this.validateElement(element);
+    }
+    
+    private validateElement(element: LayoutElement): void {
+        // Basic validation with MVC pattern in mind
+        if (element.width <= 0 || element.height <= 0) {
+            console.warn('MVC Validation: Element has invalid dimensions', element);
+        }
+        
+        if (!element.type || !['text', 'image', 'box'].includes(element.type)) {
+            console.warn('MVC Validation: Element has invalid type', element.type);
+        }
+    }
+    
+    public exportLayoutMVC(): string {
+        return this.adapter.exportLayout();
+    }
+}
+
+// Mantieni tutte le funzioni originali esattamente come erano
 function loadTemplateOrImportedData(dc: DesignCanvas): void {
     const urlParams = new URLSearchParams(window.location.search);
     const isImport = urlParams.get('import') === 'true';
@@ -412,7 +475,7 @@ function loadDefaultLayout(dc: DesignCanvas): void {
     dc.saveState();
 }
 
-// Cache globale per le immagini
+// Cache globale per le immagini (mantenuto identico al codice originale)
 const imageCache = new Map<string, string>();
 const imageCacheStatus = new Map<string, 'loading' | 'loaded' | 'error'>();
 const categoryImageCount = new Map<string, number>(); // Traccia quante immagini per categoria
@@ -714,7 +777,7 @@ function createImagePlaceholder(dc: DesignCanvas, config: {x: number, y: number,
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    console.log('DesignScope loading...');
+    console.log('DesignScope - Enhanced MVC version loading...');
     
     const canvas = document.getElementById("design-canvas") as HTMLCanvasElement;
     if (!canvas) {
@@ -722,48 +785,33 @@ window.addEventListener("DOMContentLoaded", () => {
         return;
     }
     
-    // Create enhanced canvas with MVC capabilities (fallback to original if MVC fails)
-    let dc: DesignCanvas | EnhancedDesignCanvas;
-    try {
-        dc = new EnhancedDesignCanvas(canvas);
-        console.log('DesignScope loaded with MVC pattern');
-    } catch (error) {
-        console.warn('MVC enhancement failed, using original canvas:', error);
-        dc = new DesignCanvas(canvas);
-        console.log('DesignScope loaded with original pattern');
-    }
+    // Use enhanced canvas with MVC capabilities
+    const dc = new EnhancedDesignCanvas(canvas);
 
     // Load template, imported data, or default layout
     loadTemplateOrImportedData(dc);
 
-    // Initialize managers (works with both original and enhanced canvas)
+    // Initialize managers (exactly as before)
     const saveManager = new SaveManager(dc);
     const historyManager = new HistoryManager(dc);
     const elementCreationManager = new ElementCreationManager(dc);
     const controlsManager = new ControlsManager(dc, () => saveManager.autoSave());
     const uiManager = new UIManager(dc, () => saveManager.autoSave());
 
-    // Setup UI panels
+    // Setup UI panels (exactly as before)
     uiManager.setupUIPanel();
     uiManager.setupBrainstormingPanel();
     uiManager.setupRefinementSuggestions();
     uiManager.setupElementCallbacks(controlsManager);
 
-    // Expose for debugging and compatibility
+    // Expose for debugging and compatibility (exactly as before)
     (window as any).dc = dc;
     (window as any).saveManager = saveManager;
     (window as any).uiManager = uiManager;
     (window as any).controlsManager = controlsManager;
     
-    // Expose MVC components if available
-    if (dc instanceof EnhancedDesignCanvas) {
-        (window as any).mvc = {
-            model: dc.getMVCModel(),
-            view: dc.getMVCView(),
-            controller: dc.getMVCController()
-        };
-        console.log('MVC components accessible via window.mvc');
-    }
+    // Additional MVC debugging
+    (window as any).mvcAdapter = dc.getMVCAdapter();
     
-    console.log('DesignScope ready!');
+    console.log('DesignScope Enhanced with MVC - Ready!');
 });
