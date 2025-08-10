@@ -1,5 +1,4 @@
-// src/types/element.ts
-// Tipi per gli elementi del layout
+// Element type definitions and interfaces
 
 export type ElementType = "text" | "image" | "box";
 export type TextAlign = "left" | "center" | "right";
@@ -23,7 +22,7 @@ export interface LayoutElementOptions {
     textAlign?: TextAlign;
 }
 
-// Versione semplificata per calcoli di energia e preview
+// Simplified version for energy calculations and preview
 export interface ElementBox {
     x: number;
     y: number;

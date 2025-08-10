@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesignScape - Research Prototype</title>
+    <link rel="stylesheet" href="src/styles/home.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="home-header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="material-icons">design_services</span>
+                <h1>DesignScape</h1>
+            </div>
+            
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="import-json-btn">
+                    <span class="material-icons">upload_file</span>
+                    Import Layout
+                </button>
+                <a href="editor.html" class="btn btn-primary">
+                    <span class="material-icons">add</span>
+                    Create New Layout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="home-main">
+        <div class="hero-section">
+            <h2>DesignScape Research Prototype</h2>
+            <p>An experimental AI-powered layout design tool exploring intelligent refinement suggestions and adaptive user interfaces.</p>
+        </div>
+
+        <div class="templates-section">
+            <h3>Layout Examples</h3>
+            <div class="templates-grid">
+                <!-- Portfolio Layout Template -->
+                <div class="template-card" data-template="portfolio">
+                    <div class="template-info">
+                        <h4>Portfolio Showcase</h4>
+                        <p>Clean layout for showcasing creative work and projects</p>
+                    </div>
+                </div>
+
+                <!-- Magazine Layout Template -->
+                <div class="template-card" data-template="magazine">
+                    <div class="template-info">
+                        <h4>Magazine Layout</h4>
+                        <p>Editorial design with hero image and article text</p>
+                    </div>
+                </div>
+
+                <!-- Business Card Template -->
+                <div class="template-card" data-template="business-card">
+                    <div class="template-info">
+                        <h4>Business Card</h4>
+                        <p>Professional business card layout</p>
+                    </div>
+                </div>
+
+                <!-- Poster Layout Template -->
+                <div class="template-card" data-template="poster">
+                    <div class="template-info">
+                        <h4>Event Poster</h4>
+                        <p>Eye-catching poster design for events</p>
+                    </div>
+                </div>
+
+                <!-- Web Landing Page Template -->
+                <div class="template-card" data-template="landing-page">
+                    <div class="template-info">
+                        <h4>Landing Page</h4>
+                        <p>Web page layout with hero section and features</p>
+                    </div>
+                </div>
+
+                <!-- Blank Project -->
+                <div class="template-card blank-project" data-template="blank">
+                    <div class="blank-icon">
+                        <span class="material-icons">add</span>
+                    </div>
+                    <div class="template-info">
+                        <h4>Blank Project</h4>
+                        <p>Start with an empty canvas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+    <!-- Footer for academic context -->
+    <footer class="academic-footer">
+        <div class="footer-content">
+            <p><strong>DesignScape Research Prototype</strong> - Experimental implementation for academic research purposes</p>
+            <p>Exploring AI-powered layout design and adaptive user interfaces in web-based design tools</p>
+        </div>
+    </footer>
+
+    <!-- Import JSON Modal -->
+    <div id="import-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Import Experimental Layout</h3>
+                <button class="modal-close" id="close-modal">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="import-options">
+                    <div class="import-option">
+                        <label for="json-file" class="file-upload-label">
+                            <span class="material-icons">upload_file</span>
+                            <span>Choose JSON File</span>
+                            <input type="file" id="json-file" accept=".json" style="display: none;">
+                        </label>
+                        <p class="help-text">Upload a JSON file exported from DesignScape or other compatible tools</p>
+                    </div>
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+                    <div class="import-option">
+                        <label for="json-text">Paste JSON Layout Data:</label>
+                        <textarea id="json-text" placeholder='Paste your experimental layout JSON data here...'></textarea>
+                        <button class="btn btn-primary" id="import-from-text">Import Layout</button>
+                        <p class="help-text">
+                            Need an example? <a href="public/sample-layout.json" download style="color: #667eea; text-decoration: underline;">Download sample JSON file</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/home.ts"></script>
+</body>
+</html>

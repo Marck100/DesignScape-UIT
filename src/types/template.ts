@@ -1,5 +1,4 @@
-// src/types/template.ts
-// Tipi condivisi per i template
+// Template data structures and types
 
 import { ElementType, TextAlign } from "./element";
 

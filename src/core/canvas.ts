@@ -1,5 +1,3 @@
-// src/core/canvas.ts
-
 import { LayoutElement } from "./element";
 
 export class DesignCanvas {
@@ -12,7 +10,7 @@ export class DesignCanvas {
     public elements: LayoutElement[] = [];
     private selectedElement: LayoutElement | null = null;
 
-    // Getter pubblico per l'elemento selezionato
+    // Public getter for selected element
     get currentSelection(): LayoutElement | null {
         return this.selectedElement;
     }
@@ -97,7 +95,7 @@ export class DesignCanvas {
         this.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
         this.canvas.addEventListener("dblclick", this.onDoubleClick.bind(this));
         
-        // Listener per il caricamento delle immagini
+        // Image loading
         this.canvas.addEventListener("imageLoaded", ((e: CustomEvent) => {
             console.log('Image loaded, redrawing canvas');
             this.draw();
@@ -137,8 +135,6 @@ export class DesignCanvas {
         if (!this.selectedElement) {
             this.clearRefinementSuggestionsUI();
         }
-
-        // I suggerimenti di brainstorming sono sempre presenti, o aggiornati
       
         this.draw();
         if (this.onElementSelected) {
@@ -160,6 +156,7 @@ export class DesignCanvas {
         const bottom = el.y + el.height;
         const minSize = 20;
 
+        // A resize handle is selected on mouse moving
         if (this.resizingHandleIndex !== null) {
             document.body.style.cursor = 'crosshair';
 
@@ -262,7 +259,7 @@ export class DesignCanvas {
         const target = this.elements.find(el => el.contains(x, y) && el.type === "text");
 
         if (target) {
-            this.exitTextEditing(); // Assicurati che solo un elemento sia in modalità di editing
+            this.exitTextEditing(); // Ensure only one element is in editing mode
             this.editingElement = target;
             target.isEditing = true;
             target.cursorVisible = true;

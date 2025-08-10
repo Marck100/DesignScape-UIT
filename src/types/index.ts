@@ -1,5 +1,4 @@
-// src/types/index.ts
-// Barrel export per tutti i tipi
+// Type definitions barrel exports
 
 export * from "./element";
 export * from "./template";

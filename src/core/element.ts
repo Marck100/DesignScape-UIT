@@ -1,3 +1,5 @@
+// Layout element class with rendering and manipulation capabilities
+
 import { ElementType, TextAlign, LayoutElementOptions } from "../types/element";
 
 export class LayoutElement {
@@ -93,13 +95,13 @@ export class LayoutElement {
         ctx.save();
 
         if (this.isSelected) {
-            // Bordo principale elegante blu-viola (come il tema del progetto)
+            // Main elegant blue-purple border (matching project theme)
             ctx.strokeStyle = "#667eea";
             ctx.lineWidth = 2;
             ctx.setLineDash([]);
             ctx.strokeRect(this.x - 1, this.y - 1, this.width + 2, this.height + 2);
 
-            // Bordo esterno sottile per contrasto
+            // Thin outer border for contrast
             ctx.strokeStyle = "#ffffff";
             ctx.lineWidth = 1;
             ctx.strokeRect(this.x - 2, this.y - 2, this.width + 4, this.height + 4);
@@ -118,7 +120,7 @@ export class LayoutElement {
                     this.resizeHandleSize
                 );
                 
-                // Bordo bianco per contrasto
+                // White border for contrast
                 ctx.strokeRect(
                     h.x - this.resizeHandleSize / 2,
                     h.y - this.resizeHandleSize / 2,
@@ -237,7 +239,7 @@ export class LayoutElement {
 
             case "image":
                 if (!this.content) {
-                    // Disegna un placeholder se non c'è contenuto
+                    // Draw placeholder if no content available
                     ctx.fillStyle = "#f0f0f0";
                     ctx.fillRect(this.x, this.y, this.width, this.height);
                     ctx.strokeStyle = "#ccc";
@@ -271,7 +273,7 @@ export class LayoutElement {
                     ctx.fillText("Loading...", this.x + this.width/2, this.y + this.height/2);
                     
                     const img = new Image();
-                    img.crossOrigin = "anonymous"; // Per evitare problemi CORS
+                    img.crossOrigin = "anonymous"; // To avoid CORS issues
                     img.src = this.content;
                     img.onload = () => {
                         this.imageCache.set(this.content!, img);
@@ -282,7 +284,7 @@ export class LayoutElement {
                     };
                     img.onerror = () => {
                         console.warn('Failed to load image:', this.content);
-                        // Cache un'immagine di errore
+                        // Cache an error image
                         const errorImg = new Image();
                         const errorCanvas = document.createElement('canvas');
                         errorCanvas.width = this.width;

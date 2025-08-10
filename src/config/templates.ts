@@ -1,6 +1,3 @@
-// src/config/templates.ts
-// Template predefiniti per la home page
-
 import { TemplateData } from "../types/template";
 
 export const templates: Record<string, TemplateData> = {
@@ -8,27 +5,27 @@ export const templates: Record<string, TemplateData> = {
         name: "Portfolio Showcase",
         description: "Clean layout for showcasing creative work and projects",
         elements: [
-            // Titolo principale
+            // Title
             { x: 400, y: 80, width: 200, height: 50, type: "text", content: "Portfolio", fontSize: 28, fontWeight: "bold", textAlign: "center" },
             
-            // Progetto 1
+            // Project Alpha
             { x: 80, y: 160, width: 180, height: 30, type: "text", content: "Project Alpha", fontSize: 16, fontWeight: "bold" },
-            { x: 80, y: 200, width: 180, height: 120, type: "image", content: "https://via.placeholder.com/180x120?text=Project+Alpha" },
+            { x: 80, y: 200, width: 180, height: 120, type: "image", content: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=180&h=120&fit=crop&crop=entropy" },
             { x: 80, y: 330, width: 180, height: 40, type: "text", content: "Brief description of this creative project and its key features.", fontSize: 11 },
             
-            // Progetto 2
+            // Project Beta
             { x: 320, y: 160, width: 180, height: 30, type: "text", content: "Project Beta", fontSize: 16, fontWeight: "bold" },
-            { x: 320, y: 200, width: 180, height: 120, type: "image", content: "https://via.placeholder.com/180x120?text=Project+Beta" },
+            { x: 320, y: 200, width: 180, height: 120, type: "image", content: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=180&h=120&fit=crop&crop=entropy" },
             { x: 320, y: 330, width: 180, height: 40, type: "text", content: "Brief description of this creative project and its key features.", fontSize: 11 },
             
-            // Progetto 3
+            // Project Gamma
             { x: 560, y: 160, width: 180, height: 30, type: "text", content: "Project Gamma", fontSize: 16, fontWeight: "bold" },
-            { x: 560, y: 200, width: 180, height: 120, type: "image", content: "https://via.placeholder.com/180x120?text=Project+Gamma" },
+            { x: 560, y: 200, width: 180, height: 120, type: "image", content: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=180&h=120&fit=crop&crop=entropy" },
             { x: 560, y: 330, width: 180, height: 40, type: "text", content: "Brief description of this creative project and its key features.", fontSize: 11 },
             
-            // Progetto 4
+            // Project Delta
             { x: 800, y: 160, width: 180, height: 30, type: "text", content: "Project Delta", fontSize: 16, fontWeight: "bold" },
-            { x: 800, y: 200, width: 180, height: 120, type: "image", content: "https://via.placeholder.com/180x120?text=Project+Delta" },
+            { x: 800, y: 200, width: 180, height: 120, type: "image", content: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=180&h=120&fit=crop&crop=entropy" },
             { x: 800, y: 330, width: 180, height: 40, type: "text", content: "Brief description of this creative project and its key features.", fontSize: 11 }
         ]
     },
@@ -37,20 +34,20 @@ export const templates: Record<string, TemplateData> = {
         name: "Magazine Layout",
         description: "Hero image with sidebar text - asymmetric layout with visual hierarchy",
         elements: [
-            // Titolo principale
+            // Title
             { x: 50, y: 50, width: 900, height: 80, type: "text", content: "DESIGN MAGAZINE", fontSize: 48, fontWeight: "bold", textAlign: "center" },
             
-            // Immagine hero
-            { x: 50, y: 150, width: 600, height: 350, type: "image", content: "https://via.placeholder.com/600x350?text=Hero+Image" },
+            // Image
+            { x: 50, y: 150, width: 600, height: 350, type: "image", content: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=600&h=350&fit=crop&crop=entropy" },
             
-            // Box colorato di sfondo per la sidebar
+            // Background box
             { x: 670, y: 140, width: 300, height: 370, type: "box", content: "", color: "#f8fafc" },
             
-            // Colonna di testo a destra
+            // Text (on the right)
             { x: 690, y: 160, width: 260, height: 180, type: "text", content: "Creative Design Trends\n\nExploring the latest innovations in visual design and user experience. This article covers emerging techniques and methodologies.", fontSize: 16, fontWeight: "bold" },
             { x: 690, y: 360, width: 260, height: 130, type: "text", content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.", fontSize: 12 },
             
-            // Testo sotto l'immagine
+            // Text (below the image)
             { x: 50, y: 520, width: 600, height: 60, type: "text", content: "Caption: Modern design principles in action - demonstrating visual balance and content hierarchy.", fontSize: 10, fontStyle: "italic" }
         ]
     },
@@ -59,22 +56,22 @@ export const templates: Record<string, TemplateData> = {
         name: "Card Layout",
         description: "Compact design with balanced text and image placement",
         elements: [
-            // Box di sfondo principale
+            // Background box
             { x: 30, y: 60, width: 380, height: 200, type: "box", content: "", color: "#ffffff" },
             
-            // Box colorato per il header
+            // Header box
             { x: 30, y: 60, width: 380, height: 60, type: "box", content: "", color: "#667eea" },
             
-            // Nome in bianco sul box colorato
+            // Text
             { x: 50, y: 75, width: 200, height: 30, type: "text", content: "Alex Designer", fontSize: 20, fontWeight: "bold", color: "#ffffff" },
             
-            // Logo/Immagine
-            { x: 320, y: 70, width: 70, height: 40, type: "image", content: "https://via.placeholder.com/70x40?text=LOGO" },
+            // Image
+            { x: 320, y: 70, width: 70, height: 40, type: "image", content: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=70&h=40&fit=crop&crop=entropy" },
             
-            // Titolo
+            // Title
             { x: 50, y: 140, width: 290, height: 25, type: "text", content: "Creative Director & UX Designer", fontSize: 14, fontWeight: "500", color: "#4a5568" },
             
-            // Contatti
+            // Contacts
             { x: 50, y: 170, width: 290, height: 80, type: "text", content: "✉ alex@studio.com\n📞 +1 (555) 123-4567\n🌐 alexdesign.studio\n📍 123 Creative Street, Design City", fontSize: 11, color: "#374151" }
         ]
     },
@@ -83,22 +80,22 @@ export const templates: Record<string, TemplateData> = {
         name: "Poster Design",
         description: "Centered composition with strong typography and focal image",
         elements: [
-            // Box di sfondo colorato
+            // Background box
             { x: 80, y: 60, width: 840, height: 120, type: "box", content: "", color: "#667eea" },
             
-            // Titolo principale in bianco
+            // Title
             { x: 100, y: 90, width: 800, height: 60, type: "text", content: "DESIGN CONFERENCE 2025", fontSize: 42, fontWeight: "bold", textAlign: "center", color: "#ffffff" },
             
-            // Sottotitolo
+            // Subtitle
             { x: 100, y: 200, width: 800, height: 40, type: "text", content: "The Future of Creative Technology", fontSize: 24, textAlign: "center", color: "#374151" },
             
-            // Immagine principale
-            { x: 200, y: 260, width: 600, height: 300, type: "image", content: "https://via.placeholder.com/600x300?text=Event+Image" },
+            // Image
+            { x: 200, y: 260, width: 600, height: 300, type: "image", content: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=300&fit=crop&crop=entropy" },
             
-            // Box informazioni
+            // Information box
             { x: 150, y: 580, width: 700, height: 80, type: "box", content: "", color: "#f1f5f9" },
             
-            // Informazioni evento nel box
+            // Information text
             { x: 170, y: 600, width: 660, height: 40, type: "text", content: "March 15-17, 2025 • Design Center Downtown • Tickets available now", fontSize: 16, textAlign: "center", fontWeight: "500", color: "#1a202c" },
             
             // Call to action
@@ -110,15 +107,15 @@ export const templates: Record<string, TemplateData> = {
         name: "Landing Page",
         description: "Split-screen layout with navigation and feature sections",
         elements: [
-            // Header navigation bar
+            // Nnavigation bar
             { x: 30, y: 30, width: 940, height: 60, type: "box", content: "", color: "#ffffff" },
             { x: 50, y: 50, width: 150, height: 20, type: "text", content: "BRAND LOGO", fontSize: 16, fontWeight: "bold", color: "#1a202c" },
             { x: 700, y: 50, width: 250, height: 20, type: "text", content: "Home    About    Services    Contact", fontSize: 14, fontWeight: "500", textAlign: "right", color: "#4a5568" },
             
             // Hero split-screen
-            { x: 50, y: 120, width: 450, height: 250, type: "image", content: "https://via.placeholder.com/450x250?text=Hero+Image" },
+            { x: 50, y: 120, width: 450, height: 250, type: "image", content: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=450&h=250&fit=crop&crop=entropy" },
             
-            // Hero text section con box di sfondo
+            // Hero text and box section
             { x: 520, y: 120, width: 430, height: 250, type: "box", content: "", color: "#f8fafc" },
             { x: 540, y: 150, width: 390, height: 80, type: "text", content: "Transform Your Ideas Into Reality", fontSize: 28, fontWeight: "bold", color: "#1a202c" },
             { x: 540, y: 240, width: 390, height: 80, type: "text", content: "We create stunning digital experiences that engage users and drive results. Let's build something amazing together.", fontSize: 16, color: "#4a5568" },

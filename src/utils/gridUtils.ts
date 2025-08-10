@@ -1,16 +1,15 @@
-// src/utils/gridUtils.ts
-// Utilità per la gestione della griglia e validazione
+// Grid management and validation utilities
 
 /**
- * Snappa un valore alla griglia
+ * Snap a value to the grid
  */
-export function snapToGrid(value: number, gridSize: number = 20): number {
+export function snapToGrid(value: number, gridSize: number = 10): number {
     if (isNaN(value)) return 0;
     return Math.round(value / gridSize) * gridSize;
 }
 
 /**
- * Valida e corregge le dimensioni rispettando la griglia e i valori minimi
+ * Validate and correct dimensions respecting grid and minimum values
  */
 export function validateDimension(value: number, minValue: number, gridSize: number = 20): number {
     const snapped = snapToGrid(value, gridSize);
@@ -18,14 +17,14 @@ export function validateDimension(value: number, minValue: number, gridSize: num
 }
 
 /**
- * Valida e corregge la dimensione del font
+ * Validate and correct font size
  */
 export function validateFontSize(fontSize: number): number {
     return Math.max(8, Math.min(72, Math.round(fontSize / 2) * 2));
 }
 
 /**
- * Gestisce l'incremento personalizzato per i controlli numerici
+ * Handle custom increment for numeric controls
  */
 export function calculateIncrementValue(
     currentValue: number, 

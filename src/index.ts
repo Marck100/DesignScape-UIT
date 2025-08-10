@@ -1,8 +1,8 @@
-// Homepage functionality and template management
+// Template selection and management functionality
 
 import { LayoutElement } from "./core/element";
-import { templates } from "./config/templates";
 import { TemplateData } from "./types/template";
+import { templates } from "./config/templates";
 
 class HomePageManager {
     private importModal: HTMLElement | null = null;
@@ -12,6 +12,7 @@ class HomePageManager {
     constructor() {
         this.initializeEventListeners();
         this.setupModal();
+        this.renderTemplatePreview();
     }
 
     private initializeEventListeners(): void {
@@ -168,6 +169,13 @@ class HomePageManager {
             alert('Error importing layout: ' + (error as Error).message);
         }
     }
+
+    private renderTemplatePreview(): void {
+        // Previews are handled via CSS wireframes in HTML
+        // Canvas rendering no longer needed
+        console.log('Template previews are rendered using CSS wireframes');
+    }
+
 }
 
 // Initialize the home page when DOM is loaded

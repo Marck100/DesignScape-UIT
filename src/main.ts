@@ -1,4 +1,4 @@
-// src/main.ts
+// Main application entry point
 
 import { DesignCanvas } from "./core/canvas";
 import { LayoutElement } from "./core/element";
@@ -8,9 +8,6 @@ import { SaveManager } from "./managers/SaveManager";
 import { HistoryManager } from "./managers/HistoryManager";
 import { UIManager } from "./managers/UIManager";
 import APIService from "./services/APIService";
-
-// Import del pattern MVC opzionale
-import { EnhancedDesignCanvas } from "./patterns/MVCAdapter";
 
 function loadTemplateOrImportedData(dc: DesignCanvas): void {
     const urlParams = new URLSearchParams(window.location.search);
@@ -70,10 +67,10 @@ function loadTemplateElements(dc: DesignCanvas, elementsData: any[], templateTyp
     
     elementsData.forEach(elementData => {
         if (elementData.type === "image") {
-            // Migliora le immagini del template con il nostro sistema robusto
+            // Enhance template images with our robust system
             enhanceTemplateImage(dc, elementData, templateType);
         } else {
-            // Migliora gli elementi di testo e box
+            // Enhance text and box elements
             const enhancedElement = enhanceTemplateElement(elementData, templateType);
             dc.addElement(new LayoutElement(enhancedElement));
         }
@@ -84,10 +81,10 @@ function loadTemplateElements(dc: DesignCanvas, elementsData: any[], templateTyp
 }
 
 function enhanceTemplateImage(dc: DesignCanvas, imageData: any, templateType: string): void {
-    // Determina la categoria dell'immagine basata sul template e contenuto
+    // Determine image category based on template and content
     let category = getImageCategory(imageData.content, templateType);
     
-    // Usa il nostro sistema robusto di caricamento immagini
+    // Use our robust image loading system
     createUnsplashImage(dc, {
         x: imageData.x,
         y: imageData.y,
@@ -98,10 +95,10 @@ function enhanceTemplateImage(dc: DesignCanvas, imageData: any, templateType: st
 }
 
 function enhanceTemplateElement(elementData: any, templateType: string): any {
-    // Migliora gli elementi con colori e stili più moderni
+    // Enhance elements with modern colors and styles
     const enhanced = { ...elementData };
     
-    // Aggiorna proprietà obsolete
+    // Update deprecated properties
     if (enhanced.fontWeight) {
         enhanced.fontBold = enhanced.fontWeight === 'bold' || enhanced.fontWeight === '700';
         delete enhanced.fontWeight;
@@ -117,7 +114,7 @@ function enhanceTemplateElement(elementData: any, templateType: string): any {
         delete enhanced.fontStyle;
     }
     
-    // Migliora i colori basati sul tipo di template
+    // Enhance colors based on template type
     enhanced.fontColor = enhanced.fontColor || getTemplateTextColor(templateType);
     
     if (enhanced.type === 'box' && !enhanced.fillColor) {
@@ -128,7 +125,7 @@ function enhanceTemplateElement(elementData: any, templateType: string): any {
 }
 
 function getImageCategory(originalUrl: string, templateType: string): string {
-    // Analizza l'URL originale per determinare la categoria appropriata
+    // Analyze original URL to determine appropriate category
     if (originalUrl.includes('photo-1461749280684') || originalUrl.includes('entropy')) {
         return 'coding-workspace';
     }
@@ -154,7 +151,7 @@ function getImageCategory(originalUrl: string, templateType: string): string {
         return 'teamwork';
     }
     
-    // Fallback basato sul tipo di template
+    // Fallback based on template type
     switch (templateType) {
         case 'portfolio': return 'creative-portfolio';
         case 'magazine': return 'magazine-design';
@@ -215,7 +212,7 @@ function loadDefaultLayout(dc: DesignCanvas): void {
     // Reset category counters for new layout
     categoryImageCount.clear();
     
-    // Definisci la griglia di layout per allineamento perfetto
+    // Define layout grid for perfect alignment
     const layout = {
         margin: 60,
         padding: 20,
@@ -233,7 +230,7 @@ function loadDefaultLayout(dc: DesignCanvas): void {
     const centerX = leftColumn + layout.columnWidth + (layout.gutter / 2);
     const fullWidth = layout.columnWidth * 2 + layout.gutter;
     
-    // Header principale centrato con migliore allineamento
+    // Main header centered with better alignment
     dc.addElement(new LayoutElement({ 
         x: leftColumn, 
         y: layout.margin, 
@@ -271,7 +268,7 @@ function loadDefaultLayout(dc: DesignCanvas): void {
         fillColor: "#4299e1"
     }));
     
-    // Sezione principale: Immagine hero + box informativo
+    // Main section: Hero image + info box
     const mainContentY = lineY + 30;
     
     // Immagine hero (colonna sinistra)
@@ -293,7 +290,7 @@ function loadDefaultLayout(dc: DesignCanvas): void {
         fillColor: "#f8fafc"
     }));
     
-    // Contenuto del box informativo con padding interno
+    // Info box content with internal padding
     const boxPadding = 30;
     dc.addElement(new LayoutElement({ 
         x: rightColumn + boxPadding, 
@@ -318,9 +315,9 @@ function loadDefaultLayout(dc: DesignCanvas): void {
         fontColor: "#4a5568"
     }));
     
-    // Sezione immagini inferiori con allineamento perfetto
+    // Bottom images section with perfect alignment
     const bottomImagesY = mainContentY + layout.contentHeight + 40;
-    const imageWidth = (fullWidth - (layout.gutter * 3)) / 4; // 4 immagini con 3 gutter
+    const imageWidth = (fullWidth - (layout.gutter * 3)) / 4; // 4 images with 3 gutters
     
     const imagePositions = [
         leftColumn,
@@ -329,7 +326,7 @@ function loadDefaultLayout(dc: DesignCanvas): void {
         leftColumn + (imageWidth * 3) + (layout.gutter * 1.5)
     ];
     
-    // Immagini bottom allineate con griglia
+    // Bottom images aligned with grid
     createUnsplashImage(dc, { 
         x: imagePositions[0], 
         y: bottomImagesY, 
@@ -412,20 +409,20 @@ function loadDefaultLayout(dc: DesignCanvas): void {
     dc.saveState();
 }
 
-// Cache globale per le immagini
+// Global image cache
 const imageCache = new Map<string, string>();
 const imageCacheStatus = new Map<string, 'loading' | 'loaded' | 'error'>();
-const categoryImageCount = new Map<string, number>(); // Traccia quante immagini per categoria
+const categoryImageCount = new Map<string, number>(); // Track how many images per category
 
 function createUnsplashImage(dc: DesignCanvas, config: {x: number, y: number, width: number, height: number, category: string}): void {
-    // Incrementa il contatore per questa categoria per ottenere immagini diverse
+    // Increment counter for this category to get different images
     const currentCount = categoryImageCount.get(config.category) || 0;
     categoryImageCount.set(config.category, currentCount + 1);
     
-    // Crea una chiave unica che include il contatore per variare le immagini
+    // Create a unique key that includes the counter to vary images
     const cacheKey = `${config.width}x${config.height}-${config.category}-${currentCount}`;
     
-    // Prima aggiungiamo un placeholder immediato per mostrare qualcosa subito
+    // First add immediate placeholder to show something right away
     createImagePlaceholder(dc, { 
         x: config.x, 
         y: config.y, 
@@ -434,17 +431,17 @@ function createUnsplashImage(dc: DesignCanvas, config: {x: number, y: number, wi
         text: "Loading..." 
     });
 
-    // Controlla se l'immagine è già in cache
+    // Check if image is already cached
     if (imageCache.has(cacheKey)) {
         const cachedUrl = imageCache.get(cacheKey)!;
         console.log(`Using cached image for ${cacheKey}: ${cachedUrl}`);
         
-        // Sostituisci immediatamente con l'immagine cached
+        // Replace immediately with cached image
         replaceImageElement(dc, config, cachedUrl);
         return;
     }
 
-    // Controlla se l'immagine è già in caricamento
+    // Check if image is already loading
     if (imageCacheStatus.get(cacheKey) === 'loading') {
         console.log(`Image ${cacheKey} already loading, waiting...`);
         // Aspetta che il caricamento esistente finisca
@@ -459,11 +456,11 @@ function createUnsplashImage(dc: DesignCanvas, config: {x: number, y: number, wi
     // Inizia il caricamento e marca come loading
     imageCacheStatus.set(cacheKey, 'loading');
 
-    // Prova diversi servizi di immagini con fallback
+    // Try different image services with fallback
     // Usa seed diversi per ogni immagine della stessa categoria
     const randomSeed = Math.floor(Math.random() * 10000) + currentCount * 100;
     
-    // Per i template, usa prima servizi più specifici, poi casuali come fallback
+    // For templates, use specific services first, then random as fallback
     const imageUrls = getImageUrlsForCategory(config.category, config.width, config.height, currentCount, randomSeed);
     
     let currentUrlIndex = 0;
@@ -491,7 +488,7 @@ function createUnsplashImage(dc: DesignCanvas, config: {x: number, y: number, wi
             
             console.log(`Successfully cached image ${cacheKey}: ${successUrl}`);
             
-            // Sostituisci l'elemento placeholder con l'immagine caricata
+            // Replace placeholder element with the loaded image
             replaceImageElement(dc, config, successUrl);
         };
         
@@ -562,7 +559,7 @@ function getImageUrlsForCategory(category: string, width: number, height: number
         ]
     };
 
-    // Seleziona l'immagine basata sul contatore per varietà
+    // Select image based on counter for variety
     const categoryImages = specificImages[category] || specificImages['business-professional'];
     const selectedImageId = categoryImages[count % categoryImages.length];
     
@@ -577,7 +574,7 @@ function getImageUrlsForCategory(category: string, width: number, height: number
 }
 
 function replaceImageElement(dc: DesignCanvas, config: {x: number, y: number, width: number, height: number}, imageUrl: string): void {
-    // Trova e sostituisci l'elemento placeholder
+    // Find and replace the placeholder element
     const elements = dc['elements'];
     const elementIndex = elements.findIndex(el => 
         el.x === config.x && el.y === config.y && 
@@ -586,7 +583,7 @@ function replaceImageElement(dc: DesignCanvas, config: {x: number, y: number, wi
     );
     
     if (elementIndex !== -1) {
-        // Sostituisci l'elemento esistente con l'immagine caricata
+        // Replace existing element with the loaded image
         const newElement = new LayoutElement({ 
             x: config.x, 
             y: config.y, 
@@ -616,7 +613,7 @@ function waitForImageLoad(cacheKey: string, callback: () => void): void {
     }, 10000);
 }
 
-// Funzioni di utilità per la cache
+// Cache utility functions
 function clearImageCache(): void {
     imageCache.clear();
     imageCacheStatus.clear();
@@ -642,7 +639,7 @@ function getCacheStats(): {size: number, loaded: number, loading: number, errors
     return stats;
 }
 
-// Esponi funzioni di cache globalmente per debugging
+// Expose cache functions globally for debugging
 (window as any).imageCache = {
     clear: clearImageCache,
     stats: getCacheStats,
@@ -702,7 +699,7 @@ function createImagePlaceholder(dc: DesignCanvas, config: {x: number, y: number,
     // Converti in data URL
     const dataURL = tempCanvas.toDataURL();
     
-    // Aggiungi l'elemento immagine
+    // Add the image element
     dc.addElement(new LayoutElement({ 
         x: config.x, 
         y: config.y, 
@@ -714,7 +711,7 @@ function createImagePlaceholder(dc: DesignCanvas, config: {x: number, y: number,
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    console.log('DesignScope loading...');
+    console.log('DesignScape loading...');
     
     const canvas = document.getElementById("design-canvas") as HTMLCanvasElement;
     if (!canvas) {
@@ -722,21 +719,14 @@ window.addEventListener("DOMContentLoaded", () => {
         return;
     }
     
-    // Create enhanced canvas with MVC capabilities (fallback to original if MVC fails)
-    let dc: DesignCanvas | EnhancedDesignCanvas;
-    try {
-        dc = new EnhancedDesignCanvas(canvas);
-        console.log('DesignScope loaded with MVC pattern');
-    } catch (error) {
-        console.warn('MVC enhancement failed, using original canvas:', error);
-        dc = new DesignCanvas(canvas);
-        console.log('DesignScope loaded with original pattern');
-    }
+    // Create design canvas
+    const dc = new DesignCanvas(canvas);
+    console.log('DesignScape loaded successfully');
 
     // Load template, imported data, or default layout
     loadTemplateOrImportedData(dc);
 
-    // Initialize managers (works with both original and enhanced canvas)
+    // Initialize managers
     const saveManager = new SaveManager(dc);
     const historyManager = new HistoryManager(dc);
     const elementCreationManager = new ElementCreationManager(dc);
@@ -749,21 +739,11 @@ window.addEventListener("DOMContentLoaded", () => {
     uiManager.setupRefinementSuggestions();
     uiManager.setupElementCallbacks(controlsManager);
 
-    // Expose for debugging and compatibility
+    // Expose for debugging
     (window as any).dc = dc;
     (window as any).saveManager = saveManager;
     (window as any).uiManager = uiManager;
     (window as any).controlsManager = controlsManager;
     
-    // Expose MVC components if available
-    if (dc instanceof EnhancedDesignCanvas) {
-        (window as any).mvc = {
-            model: dc.getMVCModel(),
-            view: dc.getMVCView(),
-            controller: dc.getMVCController()
-        };
-        console.log('MVC components accessible via window.mvc');
-    }
-    
-    console.log('DesignScope ready!');
+    console.log('DesignScape ready!');
 });

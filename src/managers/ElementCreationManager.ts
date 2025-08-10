@@ -1,5 +1,4 @@
-// src/managers/ElementCreationManager.ts
-// Gestisce la creazione di nuovi elementi
+// Element creation and management functionality
 
 import { DesignCanvas } from "../core/canvas";
 import { LayoutElement } from "../core/element";
@@ -79,7 +78,7 @@ export class ElementCreationManager {
     }
 
     private createElement(type: "box" | "text" | "image"): void {
-        // Per text e image, usa le utility per ottenere il contenuto
+        // For text and image, use utilities to get content
         if (type === "text") {
             const content = promptForElementContent(type);
             if (!content) return; // L'utente ha annullato o inserito testo vuoto
@@ -89,7 +88,7 @@ export class ElementCreationManager {
             return;
         }
         
-        // Per le immagini, mantieni il file selector esistente
+        // For images, keep the existing file selector
         if (type === "image") {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
@@ -109,7 +108,7 @@ export class ElementCreationManager {
             return;
         }
 
-        // Per box, usa la configurazione di default
+        // For boxes, use default configuration
         const element = createDefaultElement(type);
         this.dc.addElement(element);
     }

@@ -1,5 +1,4 @@
-// src/managers/SaveManager.ts
-// Gestisce salvataggio, export e auto-save
+// Project saving, export and auto-save functionality
 
 import { DesignCanvas } from "../core/canvas";
 
@@ -37,7 +36,7 @@ export class SaveManager {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "designscope-layout.json";
+        a.download = "designscape-layout.json";
         a.click();
         URL.revokeObjectURL(url);
         

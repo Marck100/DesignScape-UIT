@@ -1,5 +1,4 @@
-// src/managers/HistoryManager.ts
-// Gestisce undo/redo e scorciatoie da tastiera
+// Undo/redo functionality and keyboard shortcuts
 
 import { DesignCanvas } from "../core/canvas";
 

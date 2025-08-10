@@ -1,5 +1,4 @@
-// src/types/refinement.ts
-// Tipi per il sistema di suggerimenti e raffinamento del layout
+// AI refinement system type definitions
 
 import { LayoutElement } from "../core/element";
 

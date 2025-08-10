@@ -1,8 +1,8 @@
-// src/managers/ControlsManager.ts
-// Gestisce tutti i controlli dell'interfaccia utente
+// User interface controls management
 
 import { DesignCanvas } from "../core/canvas";
-import { LayoutElement, TextAlign } from "../core/element";
+import { LayoutElement } from "../core/element";
+import { TextAlign } from "../types/element";
 import { snapToGrid, validateDimension, validateFontSize, calculateIncrementValue } from "../utils/gridUtils";
 
 export class ControlsManager {
@@ -278,7 +278,7 @@ export class ControlsManager {
         });
     }
 
-    // Public methods per aggiornare i controlli quando l'elemento cambia
+    // Public methods to update controls when element changes
     updateControlsForElement(element: LayoutElement | null): void {
         // Hide all toolbar sections by default
         const boxProps = document.getElementById("box-properties") as HTMLElement;

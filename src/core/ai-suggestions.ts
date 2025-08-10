@@ -1,9 +1,14 @@
-// src/core/ai-suggestions.ts
 import { LayoutElement } from "./element";
 import { RefinementSuggestion } from "../types/refinement";
 import { ElementBox } from "../types/element";
 
-// Energy calculation functions (simplified version of the paper's model)
+// TODO: Parameter tuning
+const DEFAULT_ALIGNMENT_SCORE = 10;
+const CENTERED_ALIGNMENT_SCORE = 15;
+const OVERLAP_PENALTY = 0.1;
+const SYMMETRY_PENALTY = 0.01;
+
+// Alignment
 function calculateAlignmentEnergy(elements: ElementBox[]): number {
   let energy = 0;
   for (let i = 0; i < elements.length; i++) {
@@ -11,7 +16,7 @@ function calculateAlignmentEnergy(elements: ElementBox[]): number {
       const a = elements[i];
       const b = elements[j];
       
-      // Penalize misalignment (prefer aligned edges)
+      // Get difference in allignment
       const leftAlign = Math.abs(a.x - b.x);
       const rightAlign = Math.abs((a.x + a.width) - (b.x + b.width));
       const topAlign = Math.abs(a.y - b.y);
@@ -21,17 +26,18 @@ function calculateAlignmentEnergy(elements: ElementBox[]): number {
       
       // Add energy for good alignments (lower is better)
       const alignmentThreshold = 5;
-      if (leftAlign < alignmentThreshold) energy -= 10;
-      if (rightAlign < alignmentThreshold) energy -= 10;
-      if (topAlign < alignmentThreshold) energy -= 10;
-      if (bottomAlign < alignmentThreshold) energy -= 10;
-      if (centerAlignH < alignmentThreshold) energy -= 15; // Center alignment is preferred
-      if (centerAlignV < alignmentThreshold) energy -= 15;
+      if (leftAlign < alignmentThreshold) energy -= DEFAULT_ALIGNMENT_SCORE;
+      if (rightAlign < alignmentThreshold) energy -= DEFAULT_ALIGNMENT_SCORE;
+      if (topAlign < alignmentThreshold) energy -= DEFAULT_ALIGNMENT_SCORE;
+      if (bottomAlign < alignmentThreshold) energy -= DEFAULT_ALIGNMENT_SCORE;
+      if (centerAlignH < alignmentThreshold) energy -= CENTERED_ALIGNMENT_SCORE;
+      if (centerAlignV < alignmentThreshold) energy -= CENTERED_ALIGNMENT_SCORE;
     }
   }
   return energy;
 }
 
+// Overlap
 function calculateOverlapEnergy(elements: ElementBox[]): number {
   let energy = 0;
   for (let i = 0; i < elements.length; i++) {
@@ -45,24 +51,28 @@ function calculateOverlapEnergy(elements: ElementBox[]): number {
       const overlapArea = overlapX * overlapY;
       
       // Heavy penalty for overlaps
-      energy += overlapArea * 0.1;
+      energy += overlapArea * OVERLAP_PENALTY;
     }
   }
   return energy;
 }
 
+// Symmetry
 function calculateSymmetryEnergy(elements: ElementBox[], canvasWidth: number, canvasHeight: number): number {
   let energy = 0;
   const centerX = canvasWidth / 2;
   const centerY = canvasHeight / 2;
   
   // Calculate balance around center
-  let leftWeight = 0, rightWeight = 0, topWeight = 0, bottomWeight = 0;
+  let leftWeight = 0
+  let rightWeight = 0
+  let topWeight = 0
+  let bottomWeight = 0;
   
   elements.forEach(el => {
     const elementCenterX = el.x + el.width / 2;
     const elementCenterY = el.y + el.height / 2;
-    const weight = el.width * el.height; // Use area as weight
+    const weight = el.width * el.height; 
     
     if (elementCenterX < centerX) {
       leftWeight += weight;
@@ -81,27 +91,7 @@ function calculateSymmetryEnergy(elements: ElementBox[], canvasWidth: number, ca
   const horizontalImbalance = Math.abs(leftWeight - rightWeight);
   const verticalImbalance = Math.abs(topWeight - bottomWeight);
   
-  energy += (horizontalImbalance + verticalImbalance) * 0.001;
-  
-  return energy;
-}
-
-function calculateWhitespaceEnergy(elements: ElementBox[], canvasWidth: number, canvasHeight: number): number {
-  let energy = 0;
-  
-  // Prefer elements not too close to edges (but not penalize too much)
-  elements.forEach(el => {
-    const marginLeft = el.x;
-    const marginRight = canvasWidth - (el.x + el.width);
-    const marginTop = el.y;
-    const marginBottom = canvasHeight - (el.y + el.height);
-    
-    // Small penalty for being too close to edges
-    if (marginLeft < 10) energy += 5;
-    if (marginRight < 10) energy += 5;
-    if (marginTop < 10) energy += 5;
-    if (marginBottom < 10) energy += 5;
-  });
+  energy += (horizontalImbalance + verticalImbalance) * SYMMETRY_PENALTY;
   
   return energy;
 }
@@ -110,9 +100,8 @@ function calculateLayoutEnergy(elements: ElementBox[], canvasWidth: number, canv
   const alignmentEnergy = calculateAlignmentEnergy(elements);
   const overlapEnergy = calculateOverlapEnergy(elements);
   const symmetryEnergy = calculateSymmetryEnergy(elements, canvasWidth, canvasHeight);
-  const whitespaceEnergy = calculateWhitespaceEnergy(elements, canvasWidth, canvasHeight);
-  
-  return alignmentEnergy + overlapEnergy + symmetryEnergy + whitespaceEnergy;
+
+  return alignmentEnergy + overlapEnergy + symmetryEnergy;
 }
 
 // Convert LayoutElement to ElementBox for energy calculations
@@ -243,30 +232,7 @@ export function generateRefinementSuggestions(
     }
   });
 
-  // 3. Size matching - match dimensions with similar elements
-  others.forEach(other => {
-    if (other.type === selected.type) {
-      const matchWidth = testModification(
-        `Match width with similar "${other.type}" element`,
-        { width: other.width }
-      );
-      if (matchWidth) suggestions.push(matchWidth);
-
-      const matchHeight = testModification(
-        `Match height with similar "${other.type}" element`,
-        { height: other.height }
-      );
-      if (matchHeight) suggestions.push(matchHeight);
-
-      const matchSize = testModification(
-        `Match size with similar "${other.type}" element`,
-        { width: other.width, height: other.height }
-      );
-      if (matchSize) suggestions.push(matchSize);
-    }
-  });
-
-  // 4. Canvas-based suggestions
+  // 3. Canvas-based suggestions
   const canvasCenter = testModification(
     "Center in canvas",
     { 

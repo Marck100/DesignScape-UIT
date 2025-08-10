@@ -1,11 +1,10 @@
-// src/utils/elementUtils.ts
-// Funzioni di utilità condivise per la gestione degli elementi
+// Shared utility functions for element management
 
 import { LayoutElement } from "../core/element";
 import { ElementType } from "../types/element";
 
 /**
- * Configurazione di default per i nuovi elementi
+ * Default configuration for new elements
  */
 export const DEFAULT_ELEMENT_CONFIG = {
   position: { x: 200, y: 200 },
@@ -17,7 +16,7 @@ export const DEFAULT_ELEMENT_CONFIG = {
 };
 
 /**
- * Crea un nuovo elemento con configurazione di default
+ * Creates a new element with default configuration
  */
 export function createDefaultElement(type: ElementType, content: string = ""): LayoutElement {
   const config = DEFAULT_ELEMENT_CONFIG;
@@ -33,7 +32,7 @@ export function createDefaultElement(type: ElementType, content: string = ""): L
 }
 
 /**
- * Valida un URL per le immagini
+ * Validates a URL for images
  */
 export function isValidImageUrl(url: string): boolean {
   if (!url || url.trim() === "") return false;
@@ -47,14 +46,14 @@ export function isValidImageUrl(url: string): boolean {
 }
 
 /**
- * Valida il testo per gli elementi di testo
+ * Validates text for text elements
  */
 export function isValidText(text: string): boolean {
   return text !== null && text.trim() !== "";
 }
 
 /**
- * Chiede all'utente di inserire contenuto per un elemento
+ * Prompts the user to enter content for an element
  */
 export function promptForElementContent(type: ElementType): string | null {
   switch (type) {

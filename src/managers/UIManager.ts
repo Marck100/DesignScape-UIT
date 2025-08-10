@@ -1,5 +1,4 @@
-// src/managers/UIManager.ts
-// Gestisce l'interfaccia utente generale e i pannelli
+// General UI and panels management
 
 import { DesignCanvas } from "../core/canvas";
 import { ControlsManager } from "./ControlsManager";
