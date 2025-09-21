@@ -5,6 +5,13 @@ export class DesignCanvas {
         return this.elements;
     }
 
+    getCanvasDimensions(): { width: number, height: number } {
+        return {
+            width: this.canvas.width,
+            height: this.canvas.height
+        };
+    }
+
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     public elements: LayoutElement[] = [];
@@ -13,6 +20,11 @@ export class DesignCanvas {
     // Public getter for selected element
     get currentSelection(): LayoutElement | null {
         return this.selectedElement;
+    }
+
+    // Public getter for editing state
+    get isEditingText(): boolean {
+        return this.editingElement !== null;
     }
 
     // History management
@@ -158,39 +170,38 @@ export class DesignCanvas {
 
         // A resize handle is selected on mouse moving
         if (this.resizingHandleIndex !== null) {
-            document.body.style.cursor = 'crosshair';
+            // Set appropriate cursor for each resize direction
+            const cursors = ['nw-resize', 'ne-resize', 'sw-resize', 'se-resize'];
+            document.body.style.cursor = cursors[this.resizingHandleIndex];
+
+            // Use smaller grid snap during resize for smoother experience
+            const resizeSnapGrid = 5; // Smaller grid for resize
+            const snapX = Math.round(x / resizeSnapGrid) * resizeSnapGrid;
+            const snapY = Math.round(y / resizeSnapGrid) * resizeSnapGrid;
 
             switch (this.resizingHandleIndex) {
                 case 0: // top-left
-                    const newX0 = this.snapToGrid(x);
-                    const newY0 = this.snapToGrid(y);
-                    el.width = Math.max(minSize, right - newX0);
-                    el.height = Math.max(minSize, bottom - newY0);
+                    el.width = Math.max(minSize, right - snapX);
+                    el.height = Math.max(minSize, bottom - snapY);
                     el.x = right - el.width;
                     el.y = bottom - el.height;
                     break;
 
                 case 1: // top-right
-                    const newX1 = this.snapToGrid(x);
-                    const newY1 = this.snapToGrid(y);
-                    el.width = Math.max(minSize, newX1 - el.x);
-                    el.height = Math.max(minSize, bottom - newY1);
+                    el.width = Math.max(minSize, snapX - el.x);
+                    el.height = Math.max(minSize, bottom - snapY);
                     el.y = bottom - el.height;
                     break;
 
                 case 2: // bottom-left
-                    const newX2 = this.snapToGrid(x);
-                    const newY2 = this.snapToGrid(y);
-                    el.width = Math.max(minSize, right - newX2);
-                    el.height = Math.max(minSize, newY2 - el.y);
+                    el.width = Math.max(minSize, right - snapX);
+                    el.height = Math.max(minSize, snapY - el.y);
                     el.x = right - el.width;
                     break;
 
                 case 3: // bottom-right
-                    const newX3 = this.snapToGrid(x);
-                    const newY3 = this.snapToGrid(y);
-                    el.width = Math.max(minSize, newX3 - el.x);
-                    el.height = Math.max(minSize, newY3 - el.y);
+                    el.width = Math.max(minSize, snapX - el.x);
+                    el.height = Math.max(minSize, snapY - el.y);
                     break;
             }
             
@@ -256,13 +267,18 @@ export class DesignCanvas {
 
     private onDoubleClick(e: MouseEvent) {
         const { x, y } = this.getMousePosition(e);
-        const target = this.elements.find(el => el.contains(x, y) && el.type === "text");
+        const target = this.elements.find(el => el.contains(x, y));
 
-        if (target) {
+        if (target && target.type === "text") {
             this.exitTextEditing(); // Ensure only one element is in editing mode
             this.editingElement = target;
             target.isEditing = true;
             target.cursorVisible = true;
+
+            // Clear placeholder text if it's the default
+            if (target.content === "Double-click to edit") {
+                target.content = "";
+            }
 
             this.cursorTimer = window.setInterval(() => {
                 if (this.editingElement) {
@@ -272,16 +288,39 @@ export class DesignCanvas {
             }, 500);
 
             window.addEventListener("keydown", this.onTextInput);
-
             this.draw();
+        } else if (target && target.type === "image") {
+            // Allow editing image URL
+            const newUrl = prompt("Inserisci nuovo URL immagine:", target.content || "");
+            if (newUrl !== null && newUrl.trim() !== "") {
+                // Validate URL
+                try {
+                    new URL(newUrl.trim());
+                    // Clear old image from cache before setting new URL
+                    if (target.content) {
+                        LayoutElement.clearImageFromCache(target.content);
+                    }
+                    target.content = newUrl.trim();
+                    this.draw();
+                    this.saveState();
+                    if (this.onElementUpdated) {
+                        this.onElementUpdated(target);
+                    }
+                } catch {
+                    alert("URL non valido!");
+                }
+            }
         }
-
     }
 
     private onTextInput = (e: KeyboardEvent) => {
         if (!this.editingElement) return;
 
-        if (e.key === "Backspace") {
+        if (e.key === "Escape") {
+            // Exit editing mode without saving changes
+            this.exitTextEditing();
+            return;
+        } else if (e.key === "Backspace") {
             this.editingElement.content = this.editingElement.content?.slice(0, -1) || "";
         } else if (e.key === "Enter") {
             this.editingElement.content = (this.editingElement.content || "") + "\n";
@@ -325,6 +364,15 @@ export class DesignCanvas {
         if (this.editingElement) {
             this.editingElement.isEditing = false;
             this.editingElement.cursorVisible = false;
+            
+            // Save state when exiting text editing
+            this.saveState();
+            
+            // Notify that the element was updated
+            if (this.onElementUpdated) {
+                this.onElementUpdated(this.editingElement);
+            }
+            
             this.editingElement = null;
         }
         if (this.cursorTimer !== null) {

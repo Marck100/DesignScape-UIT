@@ -1,7 +1,7 @@
 // Homepage functionality and template management
 
 import { LayoutElement } from "./core/element";
-import { templates } from "./config/templates";
+import { templates } from './config/templates.js';
 import { TemplateData } from "./types/template";
 
 class HomePageManager {
@@ -10,8 +10,63 @@ class HomePageManager {
     private jsonTextArea: HTMLTextAreaElement | null = null;
 
     constructor() {
+        this.generateTemplateCards();
         this.initializeEventListeners();
         this.setupModal();
+    }
+
+    private generateTemplateCards(): void {
+        const templateGrid = document.querySelector('.templates-grid');
+        if (!templateGrid) {
+            console.error('Template grid not found');
+            return;
+        }
+
+        // Clear existing hardcoded templates
+        templateGrid.innerHTML = '';
+
+        // Generate cards from templates config
+        Object.entries(templates).forEach(([key, template]) => {
+            const templateCard = this.createTemplateCard(key, template);
+            templateGrid.appendChild(templateCard);
+        });
+
+        // Add blank project card
+        const blankCard = this.createBlankProjectCard();
+        templateGrid.appendChild(blankCard);
+    }
+
+    private createTemplateCard(key: string, template: TemplateData): HTMLElement {
+        const card = document.createElement('div');
+        card.className = 'template-card';
+        card.dataset.template = key;
+
+        card.innerHTML = `
+            <div class="template-info">
+                <h4>${template.name}</h4>
+                <p>${template.description}</p>
+            </div>
+        `;
+
+        return card;
+    }
+
+    private createBlankProjectCard(): HTMLElement {
+        const card = document.createElement('div');
+        card.className = 'template-card blank-project';
+        card.dataset.template = 'blank';
+
+        card.innerHTML = `
+            <div class="blank-icon">
+                <span class="material-icons">add</span>
+            </div>
+            <div class="template-info">
+                <h4>Blank Project</h4>
+                <p>Start with an empty canvas</p>
+            </div>
+        `;
+
+        return card;
     }
 
     private initializeEventListeners(): void {

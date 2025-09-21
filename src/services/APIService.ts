@@ -1,11 +1,14 @@
 export default class APIService {
     // Fetch brainstorming suggestions from backend
-    static async getBrainstormingSuggestions(elements: any[]): Promise<string[]> {
-        console.log('APIService.getBrainstormingSuggestions called with elements:', elements);
+    static async getBrainstormingSuggestions(elements: any[], canvasDimensions?: { width: number, height: number }): Promise<string[]> {
+        console.log('APIService.getBrainstormingSuggestions called with elements:', elements, 'canvas dimensions:', canvasDimensions);
         try {
             console.log('APIService: sending POST to http://localhost:8000/predict');
             // Call backend prediction endpoint via Vite proxy
-            const payload = { elements: elements.map(el => el.toSerializable ? el.toSerializable() : el) };
+            const payload = { 
+                elements: elements.map(el => el.toSerializable ? el.toSerializable() : el),
+                canvasDimensions: canvasDimensions
+            };
             console.log('APIService: payload sent:', payload);
             const response = await fetch('http://localhost:8000/predict', {
                 method: 'POST',

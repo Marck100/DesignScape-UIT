@@ -12,7 +12,7 @@ export class LayoutElement {
     fillColor?: string;
     isSelected: boolean = false;
 
-    resizeHandleSize: number = 8;
+    resizeHandleSize: number = 12; // Increased from 10 to 12 for better visibility
 
     isEditing: boolean = false;
     cursorVisible: boolean = false;
@@ -24,8 +24,12 @@ export class LayoutElement {
     fontItalic: boolean = false;
     textAlign: TextAlign = "left";
 
+    // Static shared image cache for all elements with timestamp
+    private static imageCache: Map<string, { img: HTMLImageElement; timestamp: number }> = new Map();
+    private static loadingImages: Set<string> = new Set(); // Track images currently being loaded
+    private static failedImages: Set<string> = new Set(); // Track images that failed to load
+    private static CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL
     
-    imageCache: Map<string, HTMLImageElement> = new Map();
     // If locked, element cannot be moved or resized or edited
     locked: boolean = false;
 
@@ -59,33 +63,30 @@ export class LayoutElement {
     }
 
     getResizeHandles(): {x: number, y: number}[] {
-        const size = this.resizeHandleSize;
         return [
-            { x: this.x, y: this.y },                             // top-left
-            { x: this.x + this.width, y: this.y },                // top-right
-            { x: this.x, y: this.y + this.height },               // bottom-left
-            { x: this.x + this.width, y: this.y + this.height }   // bottom-right
+            { x: this.x, y: this.y },                                               // top-left corner
+            { x: this.x + this.width, y: this.y },                                 // top-right corner  
+            { x: this.x, y: this.y + this.height },                               // bottom-left corner
+            { x: this.x + this.width, y: this.y + this.height }                   // bottom-right corner
         ];
     }
 
 
     getResizeHandle(px: number, py: number): number | null {
-        const size = this.resizeHandleSize
-        const margin = 8; 
+        const tolerance = 15; // Increased hit area for better UX
+        
+        // Handle centers (corners of the element)
         const handles = this.getResizeHandles();
 
-        console.log('px', px)
-        console.log('py', py)
-        console.log(handles)
         for (let i = 0; i < handles.length; i++) {
             const h = handles[i];
             if (
-            px >= h.x - margin &&
-            px <= h.x + size + margin &&
-            py >= h.y - margin &&
-            py <= h.y + size + margin
+                px >= h.x - tolerance &&
+                px <= h.x + tolerance &&
+                py >= h.y - tolerance &&
+                py <= h.y + tolerance
             ) {
-            return i;
+                return i;
             }
         }
         return null;
@@ -106,13 +107,19 @@ export class LayoutElement {
             ctx.lineWidth = 1;
             ctx.strokeRect(this.x - 2, this.y - 2, this.width + 4, this.height + 4);
 
-            // Handle di ridimensionamento eleganti
-            ctx.fillStyle = "#667eea";
-            ctx.strokeStyle = "#ffffff";
-            ctx.lineWidth = 2;
-            
+            // Handle di ridimensionamento più visibili
             for (const h of this.getResizeHandles()) {
-                // Handle principale
+                // Ombra leggera per profondità
+                ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+                ctx.fillRect(
+                    h.x - this.resizeHandleSize / 2 + 1,
+                    h.y - this.resizeHandleSize / 2 + 1,
+                    this.resizeHandleSize,
+                    this.resizeHandleSize
+                );
+                
+                // Handle principale con sfondo bianco
+                ctx.fillStyle = "#ffffff";
                 ctx.fillRect(
                     h.x - this.resizeHandleSize / 2,
                     h.y - this.resizeHandleSize / 2,
@@ -120,7 +127,9 @@ export class LayoutElement {
                     this.resizeHandleSize
                 );
                 
-                // White border for contrast
+                // Blue border for contrast and theme consistency
+                ctx.strokeStyle = "#667eea";
+                ctx.lineWidth = 2;
                 ctx.strokeRect(
                     h.x - this.resizeHandleSize / 2,
                     h.y - this.resizeHandleSize / 2,
@@ -254,11 +263,21 @@ export class LayoutElement {
                     break;
                 }
 
-                const cached = this.imageCache.get(this.content);
+                const cached = LayoutElement.imageCache.get(this.content);
                 
-                if (cached) {
-                    ctx.drawImage(cached, this.x, this.y, this.width, this.height);
+                // Check if cache is still valid (not expired)
+                const now = Date.now();
+                if (cached && (now - cached.timestamp) < LayoutElement.CACHE_TTL) {
+                    ctx.drawImage(cached.img, this.x, this.y, this.width, this.height);
+                } else if (LayoutElement.failedImages.has(this.content)) {
+                    // Show error state immediately for failed images
+                    const errorImg = this.createErrorImage();
+                    ctx.drawImage(errorImg, this.x, this.y, this.width, this.height);
                 } else {
+                    // Clear expired cache entry
+                    if (cached) {
+                        LayoutElement.imageCache.delete(this.content);
+                    }
                     // Disegna placeholder mentre carica
                     ctx.fillStyle = "#f5f5f5";
                     ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -272,44 +291,78 @@ export class LayoutElement {
                     ctx.textBaseline = "middle";
                     ctx.fillText("Loading...", this.x + this.width/2, this.y + this.height/2);
                     
-                    const img = new Image();
-                    img.crossOrigin = "anonymous"; // To avoid CORS issues
-                    img.src = this.content;
-                    img.onload = () => {
-                        this.imageCache.set(this.content!, img);
-                        // Triggera un redraw del canvas parent se possibile
-                        const canvas = ctx.canvas;
-                        const event = new CustomEvent('imageLoaded', { detail: { element: this } });
-                        canvas.dispatchEvent(event);
-                    };
-                    img.onerror = () => {
-                        console.warn('Failed to load image:', this.content);
-                        // Cache an error image
-                        const errorImg = new Image();
-                        const errorCanvas = document.createElement('canvas');
-                        errorCanvas.width = this.width;
-                        errorCanvas.height = this.height;
-                        const errorCtx = errorCanvas.getContext('2d')!;
+                    // Only start loading if not already loading
+                    if (!LayoutElement.loadingImages.has(this.content)) {
+                        LayoutElement.loadingImages.add(this.content);
                         
-                        errorCtx.fillStyle = "#ffebee";
-                        errorCtx.fillRect(0, 0, this.width, this.height);
-                        errorCtx.strokeStyle = "#f44336";
-                        errorCtx.lineWidth = 2;
-                        errorCtx.strokeRect(2, 2, this.width-4, this.height-4);
+                        // Show loading animation
+                        ctx.fillStyle = "#f0f8ff";
+                        ctx.fillRect(this.x, this.y, this.width, this.height);
+                        ctx.strokeStyle = "#4f46e5";
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.strokeRect(this.x, this.y, this.width, this.height);
+                        ctx.setLineDash([]);
                         
-                        errorCtx.fillStyle = "#f44336";
-                        errorCtx.font = "14px Arial";
-                        errorCtx.textAlign = "center";
-                        errorCtx.textBaseline = "middle";
-                        errorCtx.fillText("Error", this.width/2, this.height/2);
+                        ctx.fillStyle = "#4f46e5";
+                        ctx.font = "12px Arial";
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.fillText("Loading...", this.x + this.width/2, this.y + this.height/2);
                         
-                        errorImg.src = errorCanvas.toDataURL();
-                        this.imageCache.set(this.content!, errorImg);
+                        const img = new Image();
+                        img.crossOrigin = "anonymous"; // To avoid CORS issues
                         
-                        const canvas = ctx.canvas;
-                        const event = new CustomEvent('imageLoaded', { detail: { element: this } });
-                        canvas.dispatchEvent(event);
-                    };
+                        // Add timeout for image loading to prevent hanging
+                        const timeout = setTimeout(() => {
+                            console.warn('Image loading timeout:', this.content);
+                            img.src = ''; // Cancel the request
+                            
+                            // Create error placeholder immediately
+                            const errorImg = this.createErrorImage();
+                            LayoutElement.imageCache.set(this.content!, { 
+                                img: errorImg, 
+                                timestamp: Date.now() 
+                            });
+                            LayoutElement.loadingImages.delete(this.content!);
+                            
+                            const canvas = ctx.canvas;
+                            const event = new CustomEvent('imageLoaded', { detail: { element: this } });
+                            canvas.dispatchEvent(event);
+                        }, 10000); // 10 second timeout
+                        
+                        img.onload = () => {
+                            clearTimeout(timeout);
+                            LayoutElement.imageCache.set(this.content!, { 
+                                img: img, 
+                                timestamp: Date.now() 
+                            });
+                            LayoutElement.loadingImages.delete(this.content!);
+                            // Triggera un redraw del canvas parent se possibile
+                            const canvas = ctx.canvas;
+                            const event = new CustomEvent('imageLoaded', { detail: { element: this } });
+                            canvas.dispatchEvent(event);
+                        };
+                        img.onerror = () => {
+                            clearTimeout(timeout);
+                            console.warn('Failed to load image:', this.content);
+                            
+                            // Mark image as failed and cache an error image
+                            LayoutElement.failedImages.add(this.content!);
+                            const errorImg = this.createErrorImage();
+                            LayoutElement.imageCache.set(this.content!, { 
+                                img: errorImg, 
+                                timestamp: Date.now() 
+                            });
+                            LayoutElement.loadingImages.delete(this.content!);
+                            
+                            const canvas = ctx.canvas;
+                            const event = new CustomEvent('imageLoaded', { detail: { element: this } });
+                            canvas.dispatchEvent(event);
+                        };
+                        
+                        img.src = this.content;
+                    }
                 }
                 break;
 
@@ -320,6 +373,56 @@ export class LayoutElement {
         }
 
         ctx.restore();
+    }
+
+    private createErrorImage(): HTMLImageElement {
+        const errorImg = new Image();
+        const errorCanvas = document.createElement('canvas');
+        errorCanvas.width = this.width;
+        errorCanvas.height = this.height;
+        const errorCtx = errorCanvas.getContext('2d')!;
+        
+        errorCtx.fillStyle = "#ffebee";
+        errorCtx.fillRect(0, 0, this.width, this.height);
+        errorCtx.strokeStyle = "#f44336";
+        errorCtx.lineWidth = 2;
+        errorCtx.strokeRect(2, 2, this.width-4, this.height-4);
+        
+        errorCtx.fillStyle = "#f44336";
+        errorCtx.font = "14px Arial";
+        errorCtx.textAlign = "center";
+        errorCtx.textBaseline = "middle";
+        errorCtx.fillText("Error", this.width/2, this.height/2);
+        
+        errorImg.src = errorCanvas.toDataURL();
+        return errorImg;
+    }
+
+    // Static method to clear image from cache (for when URL changes)
+    static clearImageFromCache(url: string): void {
+        LayoutElement.imageCache.delete(url);
+        LayoutElement.loadingImages.delete(url);
+        LayoutElement.failedImages.delete(url); // Give failed images another chance
+    }
+
+    // Static method to clear all cached images
+    static clearAllImageCache(): void {
+        LayoutElement.imageCache.clear();
+        LayoutElement.loadingImages.clear();
+        LayoutElement.failedImages.clear();
+        console.log('Image cache cleared! All images will be reloaded.');
+    }
+
+    // Debug method to check cache status
+    static debugImageCache(): void {
+        console.log('=== IMAGE CACHE DEBUG ===');
+        console.log('Cached images:', LayoutElement.imageCache.size);
+        console.log('Loading images:', LayoutElement.loadingImages.size);
+        console.log('Failed images:', LayoutElement.failedImages.size);
+        console.log('Cache contents:', Array.from(LayoutElement.imageCache.keys()));
+        console.log('Loading:', Array.from(LayoutElement.loadingImages));
+        console.log('Failed:', Array.from(LayoutElement.failedImages));
+        console.log('=========================');
     }
 
     contains(px: number, py: number): boolean {

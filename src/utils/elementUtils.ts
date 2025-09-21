@@ -58,8 +58,8 @@ export function isValidText(text: string): boolean {
 export function promptForElementContent(type: ElementType): string | null {
   switch (type) {
     case "text":
-      const text = prompt("Inserisci il testo:") ?? "";
-      return isValidText(text) ? text : null;
+      // Return placeholder text instead of prompting
+      return "Double-click to edit";
       
     case "image":
       const url = prompt("Inserisci URL immagine:") ?? "";

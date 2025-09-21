@@ -72,18 +72,21 @@ export class ElementCreationManager {
 
     private isInputFocused(): boolean {
         const activeElement = document.activeElement;
-        return activeElement?.tagName === 'INPUT' || 
-               activeElement?.tagName === 'TEXTAREA' ||
-               activeElement?.tagName === 'SELECT';
+        const htmlInputFocused = activeElement?.tagName === 'INPUT' || 
+                                activeElement?.tagName === 'TEXTAREA' ||
+                                activeElement?.tagName === 'SELECT';
+        
+        // Also check if canvas is in text editing mode
+        const canvasTextEditing = this.dc.isEditingText;
+        
+        return htmlInputFocused || canvasTextEditing;
     }
 
     private createElement(type: "box" | "text" | "image"): void {
-        // For text and image, use utilities to get content
+        // For text, create directly with placeholder text
         if (type === "text") {
             const content = promptForElementContent(type);
-            if (!content) return; // L'utente ha annullato o inserito testo vuoto
-            
-            const element = createDefaultElement(type, content);
+            const element = createDefaultElement(type, content || "Double-click to edit");
             this.dc.addElement(element);
             return;
         }
@@ -102,6 +105,7 @@ export class ElementCreationManager {
                     const element = createDefaultElement('image', dataUrl);
                     this.dc.addElement(element);
                 };
+
                 reader.readAsDataURL(file);
             };
             fileInput.click();

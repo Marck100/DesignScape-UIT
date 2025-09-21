@@ -280,10 +280,17 @@ export class ControlsManager {
 
     // Public methods to update controls when element changes
     updateControlsForElement(element: LayoutElement | null): void {
+        console.log('ControlsManager: updateControlsForElement called with element:', element);
         // Hide all toolbar sections by default
         const boxProps = document.getElementById("box-properties") as HTMLElement;
         const textProps = document.getElementById("text-properties") as HTMLElement;
         const emptyProps = document.getElementById("empty-properties") as HTMLElement;
+        
+        console.log('ControlsManager: DOM elements found:', {
+            boxProps: !!boxProps,
+            textProps: !!textProps,
+            emptyProps: !!emptyProps
+        });
         this.lockSection.style.display = 'none';
         this.lockBtn.classList.remove('active');
         boxProps.style.display = 'none';

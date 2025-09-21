@@ -45,8 +45,7 @@ body {
     justify-content: space-between;
     gap: 20px;
     width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
+    margin: 0 0px;
     padding: 0 20px; /* Same padding as sidebars */
     height: 100%;
 }
@@ -313,20 +312,47 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
-    background-color: #f9fafb;    /* Light default background to indicate clickability */
-    border: 1px solid #e2e8f0;      /* Subtle border around suggestion */
-    margin-bottom: 8px;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background-color: #f0f9ff;
+    border: 1px solid #bae6fd;
+    margin-bottom: 12px;
 }
 .sidebar-content .suggestion-item:hover {
-    background-color: #f3f4f6;
+    background-color: #e0f2fe;
+    border-color: #0284c7;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
 }
 
 .sidebar-content .suggestion-item.clickable {
     cursor: pointer;
+}
+
+/* Style for refinement suggestion icons */
+.sidebar-content .suggestion-item .material-icons {
+    color: #0284c7;
+    font-size: 18px;
+    background: white;
+    border: 1px solid #bae6fd;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-content .suggestion-item p {
+    margin: 0;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #374151;
+    flex: 1;
 }
 
 .auto-applied-suggestion {
@@ -614,6 +640,56 @@ canvas {
     margin-bottom: 12px;
 }
 
+/* Improved Brainstorm Suggestion Items - Consistent with auto-applied suggestions */
+.brainstorm-suggestion {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    border-radius: 6px !important;
+    background-color: #f0f9ff !important;
+    border: 1px solid #bae6fd !important;
+    margin-bottom: 12px !important;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.brainstorm-suggestion:hover {
+    background-color: #e0f2fe !important;
+    border-color: #0284c7 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
+}
+
+.brainstorm-suggestion .suggestion-icon {
+    background: white;
+    border: 1px solid #bae6fd;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.brainstorm-suggestion .suggestion-icon .material-icons {
+    color: #0284c7;
+    font-size: 16px;
+}
+
+.brainstorm-suggestion .suggestion-content {
+    flex: 1;
+}
+
+.brainstorm-suggestion .suggestion-content p {
+    margin: 0 !important;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #374151 !important;
+}
+
 /* Refinement Suggestions */
 .suggestion-preview {
     padding: 12px;
@@ -850,4 +926,46 @@ canvas {
     width: 100%;
     height: 100%;
     overflow: hidden;
+}
+
+/* Loading Indicators */
+.loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    text-align: center;
+    color: #666;
+}
+
+.loading-indicator .material-icons {
+    font-size: 32px;
+    margin-bottom: 12px;
+    color: #667eea;
+}
+
+.loading-indicator p {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Spinning Animation */
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error Text Styling */
+.hint-text.error {
+    color: #dc3545;
+    font-weight: 500;
 }

@@ -8,11 +8,40 @@ import { SaveManager } from "./managers/SaveManager";
 import { HistoryManager } from "./managers/HistoryManager";
 import { UIManager } from "./managers/UIManager";
 import APIService from "./services/APIService";
+import { templates } from "./config/templates";
+
+// Global flag to track if initial layout has been loaded
+let initialLayoutLoaded = false;
+
+function loadTemplateFromSource(dc: DesignCanvas, templateName: string): boolean {
+    try {
+        const template = templates[templateName];
+        if (template) {
+            console.log(`Loading template '${templateName}' directly from source`);
+            loadTemplateElements(dc, template.elements, templateName);
+            return true;
+        } else {
+            console.error(`Template '${templateName}' not found in templates config`);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error loading template from source:', error);
+        return false;
+    }
+}
 
 function loadTemplateOrImportedData(dc: DesignCanvas): void {
+    if (initialLayoutLoaded) {
+        console.log('🛑 Initial layout already loaded, skipping reload');
+        return;
+    }
+    
     const urlParams = new URLSearchParams(window.location.search);
     const isImport = urlParams.get('import') === 'true';
     const templateName = urlParams.get('template');
+
+    console.log('🚀 Loading initial layout...');
+    console.log('URL params:', { isImport, templateName });
 
     if (isImport) {
         // Load imported layout
@@ -22,6 +51,7 @@ function loadTemplateOrImportedData(dc: DesignCanvas): void {
                 const data = JSON.parse(importedData);
                 loadElementsFromData(dc, data.elements);
                 sessionStorage.removeItem('importedLayout'); // Clean up
+                initialLayoutLoaded = true;
                 return;
             } catch (error) {
                 console.error('Error loading imported data:', error);
@@ -35,10 +65,21 @@ function loadTemplateOrImportedData(dc: DesignCanvas): void {
                 const data = JSON.parse(templateData);
                 loadTemplateElements(dc, data.elements, templateName);
                 sessionStorage.removeItem('templateData'); // Clean up
+                initialLayoutLoaded = true;
                 return;
             } catch (error) {
                 console.error('Error loading template data:', error);
             }
+        } else {
+            // Template name in URL but no data in sessionStorage
+            // Try to reload template from source instead of falling back to default
+            console.warn(`Template '${templateName}' requested but no data found in sessionStorage`);
+            const success = loadTemplateFromSource(dc, templateName);
+            if (success) {
+                initialLayoutLoaded = true;
+                return;
+            }
+            console.warn('Failed to load template from source, leaving canvas empty');
         }
     }
 
@@ -49,11 +90,16 @@ function loadTemplateOrImportedData(dc: DesignCanvas): void {
         // Just clear the canvas and leave it empty
         dc.clearCanvas();
         dc.draw();
+        initialLayoutLoaded = true;
         return;
     }
 
-    // Only load default layout if there was an error or no other option
+    // Only load default layout if explicitly requested or as absolute fallback
+    console.warn('⚠️ Loading default layout as fallback - this should rarely happen');
+    console.warn('Current URL:', window.location.href);
+    console.warn('Template name from URL:', templateName);
     loadDefaultLayout(dc);
+    initialLayoutLoaded = true;
 }
 
 function loadTemplateElements(dc: DesignCanvas, elementsData: any[], templateType: string): void {
@@ -64,11 +110,14 @@ function loadTemplateElements(dc: DesignCanvas, elementsData: any[], templateTyp
     categoryImageCount.clear();
     
     console.log(`Loading ${templateType} template with ${elementsData.length} elements...`);
+    console.log('🎯 Template elements to load:', elementsData);
     
-    elementsData.forEach(elementData => {
+    elementsData.forEach((elementData, index) => {
         if (elementData.type === "image") {
-            // Enhance template images with our robust system
-            enhanceTemplateImage(dc, elementData, templateType);
+            console.log(`📷 Loading image element ${index + 1}:`, elementData.content);
+            // Use the exact URL from the template instead of generating a new one
+            const enhancedElement = enhanceTemplateElement(elementData, templateType);
+            dc.addElement(new LayoutElement(enhancedElement));
         } else {
             // Enhance text and box elements
             const enhancedElement = enhanceTemplateElement(elementData, templateType);
@@ -78,20 +127,13 @@ function loadTemplateElements(dc: DesignCanvas, elementsData: any[], templateTyp
     
     dc.draw();
     dc.saveState();
+    console.log(`✅ Template ${templateType} loaded successfully with ${dc.getElements().length} elements`);
 }
 
 function enhanceTemplateImage(dc: DesignCanvas, imageData: any, templateType: string): void {
-    // Determine image category based on template and content
-    let category = getImageCategory(imageData.content, templateType);
-    
-    // Use our robust image loading system
-    createUnsplashImage(dc, {
-        x: imageData.x,
-        y: imageData.y,
-        width: imageData.width,
-        height: imageData.height,
-        category: category
-    });
+    // Use the exact URL from the template instead of generating a new one
+    const enhancedElement = enhanceTemplateElement(imageData, templateType);
+    dc.addElement(new LayoutElement(enhancedElement));
 }
 
 function enhanceTemplateElement(elementData: any, templateType: string): any {
@@ -745,5 +787,35 @@ window.addEventListener("DOMContentLoaded", () => {
     (window as any).uiManager = uiManager;
     (window as any).controlsManager = controlsManager;
     
+    // Expose image cache debug functions
+    (window as any).clearImageCache = () => {
+        LayoutElement.clearAllImageCache();
+        dc.draw(); // Redraw to trigger reload
+    };
+    (window as any).debugImageCache = () => LayoutElement.debugImageCache();
+    
+    // Expose layout debug functions
+    (window as any).debugLayout = () => {
+        console.log('=== LAYOUT DEBUG ===');
+        console.log('Initial layout loaded:', initialLayoutLoaded);
+        console.log('Current URL:', window.location.href);
+        console.log('Canvas elements:', dc.getElements().length);
+        console.log('Elements:', dc.getElements());
+        console.log('SessionStorage templateData:', sessionStorage.getItem('templateData'));
+        console.log('SessionStorage importedLayout:', sessionStorage.getItem('importedLayout'));
+        console.log('====================');
+    };
+    
+    (window as any).forceReload = () => {
+        console.log('🔄 Forcing layout reload...');
+        initialLayoutLoaded = false;
+        loadTemplateOrImportedData(dc);
+    };
+    
     console.log('DesignScape ready!');
+    console.log('Debug commands available:');
+    console.log('- clearImageCache() : Clear all cached images');
+    console.log('- debugImageCache() : Show cache status');
+    console.log('- debugLayout() : Show layout debug info');
+    console.log('- forceReload() : Force reload of template');
 });

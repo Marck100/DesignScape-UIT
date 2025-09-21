@@ -35,37 +35,77 @@ export class UIManager {
         // On click, fetch suggestions for entire canvas via APIService
         generateBtn.addEventListener('click', async () => {
             console.log('UIManager: generateBtn clicked');
-            const elements = this.dc.getElements();
-            console.log('UIManager: sending elements for brainstorming', elements);
-            const suggestions = await APIService.getBrainstormingSuggestions(elements);
-            console.log('UIManager: received suggestions', suggestions);
-            if (suggestions.length === 0) {
-                suggestionsContainer.innerHTML = '<p class="hint-text">No ideas available.</p>';
-                return;
-            }
-            // Render suggestion name list
-            suggestionsContainer.innerHTML = suggestions.map((s, i) => `
-                <div class="suggestion-item" data-index="${i}">
-                    <span class="material-icons">lightbulb_outline</span>
-                    <p>${typeof s === 'string' ? s : (s as any).name || 'Suggestion ' + (i+1)}</p>
-                </div>
-            `).join('');
-            // Attach click handlers to apply layout
-            const items = suggestionsContainer.querySelectorAll('.suggestion-item');
-            items.forEach(item => {
-                item.addEventListener('click', () => {
-                    const idx = parseInt(item.getAttribute('data-index') || '0');
-                    const suggestion = suggestions[idx] as any;
-                    const layoutData = (typeof suggestion === 'object' && suggestion.layout) ? suggestion.layout as any[] : [];
-                    // Apply returned layout
-                    this.dc.clearCanvas();
-                    layoutData.forEach(data => {
-                        this.dc.addElement(new LayoutElement(data));
+            
+            // Mostra indicatore di caricamento
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="material-icons spinning">refresh</span> Generating...';
+            suggestionsContainer.innerHTML = '<div class="loading-indicator"><span class="material-icons spinning">refresh</span><p>Generating creative suggestions...</p></div>';
+            
+            try {
+                const elements = this.dc.getElements();
+                const canvasDimensions = this.dc.getCanvasDimensions();
+                console.log('UIManager: sending elements for brainstorming', elements, 'canvas dimensions:', canvasDimensions);
+                const suggestions = await APIService.getBrainstormingSuggestions(elements, canvasDimensions);
+                console.log('UIManager: received suggestions', suggestions);
+                
+                if (suggestions.length === 0) {
+                    suggestionsContainer.innerHTML = '<p class="hint-text">No ideas available.</p>';
+                    return;
+                }
+                
+                // Render suggestion name list
+                suggestionsContainer.innerHTML = suggestions.map((s, i) => `
+                    <div class="suggestion-item brainstorm-suggestion" data-index="${i}">
+                        <div class="suggestion-icon">
+                            <span class="material-icons">auto_awesome</span>
+                        </div>
+                        <div class="suggestion-content">
+                            <p>${typeof s === 'string' ? s : (s as any).name || 'Suggestion ' + (i+1)}</p>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Attach click handlers to apply layout
+                const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+                items.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const idx = parseInt(item.getAttribute('data-index') || '0');
+                        const suggestion = suggestions[idx] as any;
+                        const layoutData = (typeof suggestion === 'object' && suggestion.layout) ? suggestion.layout : null;
+                        // Apply returned layout
+                        this.dc.clearCanvas();
+                        
+                        if (layoutData) {
+                            // Se layoutData è un array, usalo direttamente
+                            if (Array.isArray(layoutData)) {
+                                layoutData.forEach(data => {
+                                    this.dc.addElement(new LayoutElement(data));
+                                });
+                            } 
+                            // Se layoutData ha una proprietà elements che è un array
+                            else if (layoutData.elements && Array.isArray(layoutData.elements)) {
+                                layoutData.elements.forEach((data: any) => {
+                                    this.dc.addElement(new LayoutElement(data));
+                                });
+                            }
+                            // Fallback: prova a trattarlo come singolo elemento
+                            else {
+                                console.warn('Layout data structure not recognized:', layoutData);
+                            }
+                        }
+                        this.dc.draw();
+                        console.log('UIManager: applied suggestion layout', (suggestions[idx] as any).name || 'layout');
                     });
-                    this.dc.draw();
-                    console.log('UIManager: applied suggestion layout', (suggestions[idx] as any).name || 'layout');
                 });
-            });
+                
+            } catch (error) {
+                console.error('Error generating suggestions:', error);
+                suggestionsContainer.innerHTML = '<p class="hint-text error">Error generating suggestions. Please try again.</p>';
+            } finally {
+                // Ripristina il pulsante
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<span class="material-icons">auto_awesome</span> Generate Ideas';
+            }
         });
         // Ensure brainstorming controls always visible
         generateBtn.disabled = false;
@@ -88,9 +128,11 @@ export class UIManager {
             }
         });
 
-        // Enable by default if checked
+        // Enable by default if checked, otherwise set up manual mode
         if (adaptiveToggle.checked) {
             this.enableAdaptiveInterface(suggestionsContainer);
+        } else {
+            this.disableAdaptiveInterface(suggestionsContainer);
         }
     }
 
@@ -223,8 +265,10 @@ export class UIManager {
     }
 
     setupElementCallbacks(controlsManager: ControlsManager): void {
+        console.log('UIManager: setupElementCallbacks called');
         // Setup callbacks for when elements are selected/deselected
         this.dc.onElementSelected = (element) => {
+            console.log('UIManager: onElementSelected called with element:', element);
             if (element) {
                 controlsManager.updateControlsForElement(element);
                 this.autoSaveCallback();

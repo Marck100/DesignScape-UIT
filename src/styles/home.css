@@ -10,6 +10,9 @@ body {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     color: #1a202c;
     line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header */
@@ -26,8 +29,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1400px;
-    margin: 0 auto;
+    margin: 0 0;
     padding: 0 20px;
     height: 70px;
 }
@@ -129,6 +131,18 @@ body {
     max-width: 700px;
     margin: 0 auto;
     line-height: 1.6;
+}
+
+.hero-section a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.hero-section a:hover {
+    color: #5a67d8;
+    text-decoration: underline;
 }
 
 /* Templates Section */
@@ -716,12 +730,12 @@ body {
     }
 }
 
-/* Academic Footer */
-.academic-footer {
-    background: #f8fafc;
+/* Site Footer */
+.site-footer {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     border-top: 1px solid #e2e8f0;
     padding: 30px 0;
-    margin-top: 60px;
+    margin-top: auto;
     text-align: center;
 }
 
@@ -732,12 +746,8 @@ body {
 }
 
 .footer-content p {
-    color: #6b7280;
+    color: #4a5568;
     font-size: 14px;
-    margin-bottom: 8px;
-    line-height: 1.5;
-}
-
-.footer-content p:last-child {
-    margin-bottom: 0;
+    margin: 0;
+    font-weight: 500;
 }
