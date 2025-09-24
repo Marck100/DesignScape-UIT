@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Basic page setup for the DesignScape home page -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DesignScape - Research Prototype</title>
+    <!-- External stylesheets and fonts -->
     <link rel="stylesheet" href="src/styles/home.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header section -->
     <header class="home-header">
         <div class="header-content">
+            <!-- Logo and brand -->
             <div class="logo">
                 <span class="material-icons">design_services</span>
                 <h1>DesignScape</h1>
             </div>
             
+            <!-- Main action buttons -->
             <div class="header-actions">
+                <!-- Import existing layout functionality -->
                 <button class="btn btn-secondary" id="import-json-btn">
                     <span class="material-icons">upload_file</span>
                     Import Layout
                 </button>
+                <!-- Start new design button -->
                 <a href="editor.html" class="btn btn-primary">
                     <span class="material-icons">add</span>
                     Create New Layout
@@ -32,11 +38,13 @@
 
     <!-- Main Content -->
     <main class="home-main">
+        <!-- Hero/Introduction section -->
         <div class="hero-section">
             <h2>DesignScope</h2>
             <p>A replica project of <a href="https://www.dgp.toronto.edu/~donovan/design/index.html" target="_blank" rel="noopener">DesignScape</a> - An experimental AI-powered layout design tool exploring intelligent refinement suggestions and adaptive user interfaces.</p>
         </div>
 
+        <!-- Template examples showcase -->
         <div class="templates-section">
             <h3>Layout Examples</h3>
             <div class="templates-grid">
@@ -46,7 +54,7 @@
 
         </div>
 
-    <!-- Import JSON Modal -->
+    <!-- Import JSON Modal for uploading existing layouts -->
     <div id="import-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -88,8 +96,9 @@
         </div>
     </footer>
 
+    <!-- Home page TypeScript module -->
     <script type="module" src="src/home.ts"></script>
 </body>
-</html></script>
+</html>
 </body>
 </html>

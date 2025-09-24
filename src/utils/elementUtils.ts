@@ -1,22 +1,26 @@
-// Shared utility functions for element management
+// Shared utility functions for element management and creation
 
 import { LayoutElement } from "../core/element";
 import { ElementType } from "../types/element";
 
 /**
- * Default configuration for new elements
+ * Default configuration for new elements including position and sizes
+ * Used when creating elements without specific positioning
  */
 export const DEFAULT_ELEMENT_CONFIG = {
-  position: { x: 200, y: 200 },
+  position: { x: 200, y: 200 },          // Default placement position
   sizes: {
-    box: { width: 150, height: 100 },
-    text: { width: 200, height: 40 },
-    image: { width: 150, height: 100 }
+    box: { width: 150, height: 100 },    // Default box dimensions
+    text: { width: 200, height: 40 },    // Default text area dimensions
+    image: { width: 150, height: 100 }   // Default image dimensions
   }
 };
 
 /**
- * Creates a new element with default configuration
+ * Creates a new element with default configuration based on type
+ * @param type - The type of element to create
+ * @param content - Optional content for the element
+ * @returns New LayoutElement instance with default properties
  */
 export function createDefaultElement(type: ElementType, content: string = ""): LayoutElement {
   const config = DEFAULT_ELEMENT_CONFIG;
@@ -32,7 +36,9 @@ export function createDefaultElement(type: ElementType, content: string = ""): L
 }
 
 /**
- * Validates a URL for images
+ * Validates if a URL is valid for image elements
+ * @param url - URL string to validate
+ * @returns True if URL is valid, false otherwise
  */
 export function isValidImageUrl(url: string): boolean {
   if (!url || url.trim() === "") return false;
@@ -46,7 +52,9 @@ export function isValidImageUrl(url: string): boolean {
 }
 
 /**
- * Validates text for text elements
+ * Validates text content for text elements
+ * @param text - Text string to validate
+ * @returns True if text is valid, false otherwise
  */
 export function isValidText(text: string): boolean {
   return text !== null && text.trim() !== "";

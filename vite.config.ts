@@ -1,7 +1,8 @@
+// Vite configuration for DesignScope project
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  root: '.', // cartella principale
+  root: '.', // Main project folder
   publicDir: 'public',
-  // Rimosso proxy: richieste vengono inviate direttamente a http://localhost:8000/predict
+  // Removed proxy: requests are sent directly to http://localhost:8000/predict
 });

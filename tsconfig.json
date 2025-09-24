@@ -1,13 +1,14 @@
 {
+  // TypeScript configuration for DesignScope project
   "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "target": "ESNext",                          // Target modern JavaScript features
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],   // Include DOM API and modern ES features
+    "module": "ESNext",                          // Use ES modules
+    "moduleResolution": "Node",                  // Node.js module resolution
+    "strict": true,                              // Enable all strict type checking
+    "esModuleInterop": true,                     // Enable ES module interoperability
+    "forceConsistentCasingInFileNames": true,    // Enforce consistent file naming
+    "skipLibCheck": true                         // Skip type checking of declaration files
   },
-  "include": ["src"]
+  "include": ["src"]                             // Include all TypeScript files in src directory
 }

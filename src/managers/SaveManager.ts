@@ -1,18 +1,29 @@
-// Project saving, export and auto-save functionality
+// Project saving, export, and auto-save functionality management
 
 import { DesignCanvas } from "../core/canvas";
 
+/**
+ * Manages project persistence including auto-save, manual save,
+ * export functionality, and localStorage integration.
+ */
 export class SaveManager {
     private dc: DesignCanvas;
     private autoSaveTimer: number = 0;
-    private readonly AUTO_SAVE_DELAY = 5000;
+    private readonly AUTO_SAVE_DELAY = 5000; // Auto-save delay in milliseconds
 
+    /**
+     * Creates a new SaveManager instance
+     * @param canvas - The design canvas to manage saving for
+     */
     constructor(canvas: DesignCanvas) {
         this.dc = canvas;
         this.setupSaveButtons();
         this.loadSavedProject();
     }
 
+    /**
+     * Sets up event listeners for save and export buttons
+     */
     private setupSaveButtons(): void {
         const saveBtn = document.getElementById("save-project");
         const exportBtn = document.getElementById("export-project");
@@ -21,9 +32,12 @@ export class SaveManager {
         exportBtn?.addEventListener("click", () => this.exportProject());
     }
 
+    /**
+     * Saves the current project to localStorage
+     */
     private saveProject(): void {
         const layout = this.dc.exportLayout();
-        const dataStr = JSON.stringify(layout, null, 2);
+        const dataStr = JSON.stringify(layout.map(el => el.toSerializable()), null, 2);
         localStorage.setItem('designscope-project', dataStr);
         
         this.showFeedback("save-project", "Saved!");
@@ -31,7 +45,7 @@ export class SaveManager {
 
     private exportProject(): void {
         const layout = this.dc.exportLayout();
-        const dataStr = JSON.stringify(layout, null, 2);
+        const dataStr = JSON.stringify(layout.map(el => el.toSerializable()), null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -61,7 +75,7 @@ export class SaveManager {
         clearTimeout(this.autoSaveTimer);
         this.autoSaveTimer = window.setTimeout(() => {
             const layout = this.dc.exportLayout();
-            localStorage.setItem('designscope-autosave', JSON.stringify(layout));
+            localStorage.setItem('designscope-autosave', JSON.stringify(layout.map(el => el.toSerializable())));
         }, this.AUTO_SAVE_DELAY);
     }
 

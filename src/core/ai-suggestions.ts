@@ -1,14 +1,22 @@
+// AI-powered layout suggestions and energy calculations for design refinement
+
 import { LayoutElement } from "./element";
 import { RefinementSuggestion } from "../types/refinement";
 import { ElementBox } from "../types/element";
 
-// TODO: Parameter tuning
+// Configuration constants for energy calculation scoring
+// TODO: Parameter tuning based on user feedback and testing
 const DEFAULT_ALIGNMENT_SCORE = 10;
 const CENTERED_ALIGNMENT_SCORE = 15;
 const OVERLAP_PENALTY = 0.1;
 const SYMMETRY_PENALTY = 0.01;
 
-// Alignment
+/**
+ * Calculates alignment energy between elements to encourage proper alignment
+ * Lower energy values indicate better alignment
+ * @param elements - Array of element boxes to analyze
+ * @returns Alignment energy score (lower is better)
+ */
 function calculateAlignmentEnergy(elements: ElementBox[]): number {
   let energy = 0;
   for (let i = 0; i < elements.length; i++) {
@@ -16,7 +24,7 @@ function calculateAlignmentEnergy(elements: ElementBox[]): number {
       const a = elements[i];
       const b = elements[j];
       
-      // Get difference in allignment
+      // Calculate differences in alignment positions
       const leftAlign = Math.abs(a.x - b.x);
       const rightAlign = Math.abs((a.x + a.width) - (b.x + b.width));
       const topAlign = Math.abs(a.y - b.y);
@@ -24,7 +32,7 @@ function calculateAlignmentEnergy(elements: ElementBox[]): number {
       const centerAlignH = Math.abs((a.x + a.width/2) - (b.x + b.width/2));
       const centerAlignV = Math.abs((a.y + a.height/2) - (b.y + b.height/2));
       
-      // Add energy for good alignments (lower is better)
+      // Reward good alignments by reducing energy (lower is better)
       const alignmentThreshold = 5;
       if (leftAlign < alignmentThreshold) energy -= DEFAULT_ALIGNMENT_SCORE;
       if (rightAlign < alignmentThreshold) energy -= DEFAULT_ALIGNMENT_SCORE;
@@ -37,7 +45,11 @@ function calculateAlignmentEnergy(elements: ElementBox[]): number {
   return energy;
 }
 
-// Overlap
+/**
+ * Calculates overlap energy to penalize overlapping elements
+ * @param elements - Array of element boxes to analyze
+ * @returns Overlap energy score (higher values penalize overlaps)
+ */
 function calculateOverlapEnergy(elements: ElementBox[]): number {
   let energy = 0;
   for (let i = 0; i < elements.length; i++) {
@@ -45,7 +57,7 @@ function calculateOverlapEnergy(elements: ElementBox[]): number {
       const a = elements[i];
       const b = elements[j];
       
-      // Calculate overlap area
+      // Calculate overlap area between two elements
       const overlapX = Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x));
       const overlapY = Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
       const overlapArea = overlapX * overlapY;

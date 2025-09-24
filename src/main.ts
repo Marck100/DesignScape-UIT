@@ -1,4 +1,4 @@
-// Main application entry point
+// Main application entry point for the DesignScope editor
 
 import { DesignCanvas } from "./core/canvas";
 import { LayoutElement } from "./core/element";
@@ -13,6 +13,12 @@ import { templates } from "./config/templates";
 // Global flag to track if initial layout has been loaded
 let initialLayoutLoaded = false;
 
+/**
+ * Loads a template directly from the templates configuration
+ * @param dc - Design canvas instance
+ * @param templateName - Name of the template to load
+ * @returns Success status of the template loading
+ */
 function loadTemplateFromSource(dc: DesignCanvas, templateName: string): boolean {
     try {
         const template = templates[templateName];
@@ -30,6 +36,10 @@ function loadTemplateFromSource(dc: DesignCanvas, templateName: string): boolean
     }
 }
 
+/**
+ * Loads template or imported layout data based on URL parameters
+ * @param dc - Design canvas instance
+ */
 function loadTemplateOrImportedData(dc: DesignCanvas): void {
     if (initialLayoutLoaded) {
         console.log('🛑 Initial layout already loaded, skipping reload');
@@ -44,7 +54,7 @@ function loadTemplateOrImportedData(dc: DesignCanvas): void {
     console.log('URL params:', { isImport, templateName });
 
     if (isImport) {
-        // Load imported layout
+        // Load imported layout from sessionStorage
         const importedData = sessionStorage.getItem('importedLayout');
         if (importedData) {
             try {

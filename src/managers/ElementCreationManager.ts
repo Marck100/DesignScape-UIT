@@ -1,25 +1,36 @@
-// Element creation and management functionality
+// Element creation and management functionality for design canvas
 
 import { DesignCanvas } from "../core/canvas";
 import { LayoutElement } from "../core/element";
 import { LayoutElementOptions } from "../types/element";
 import { createDefaultElement, promptForElementContent, isValidText } from "../utils/elementUtils";
 
+/**
+ * Manages element creation through UI interactions and keyboard shortcuts.
+ * Handles dropdown menus, element type selection, and new element placement.
+ */
 export class ElementCreationManager {
     private dc: DesignCanvas;
 
+    /**
+     * Creates a new ElementCreationManager instance
+     * @param canvas - The design canvas to add elements to
+     */
     constructor(canvas: DesignCanvas) {
         this.dc = canvas;
         this.setupDropdown();
         this.setupKeyboardShortcuts();
     }
 
+    /**
+     * Sets up the element creation dropdown menu and its event listeners
+     */
     private setupDropdown(): void {
         const addElementBtn = document.getElementById('add-element-btn') as HTMLButtonElement;
         const dropdownContainer = addElementBtn?.parentElement as HTMLElement;
         const dropdownItems = document.querySelectorAll('.dropdown-item') as NodeListOf<HTMLButtonElement>;
 
-        // Dropdown toggle
+        // Toggle dropdown when button is clicked
         addElementBtn?.addEventListener('click', (e) => {
             e.stopPropagation();
             dropdownContainer?.classList.toggle('open');
@@ -32,7 +43,7 @@ export class ElementCreationManager {
             }
         });
 
-        // Dropdown items
+        // Handle dropdown item selection
         dropdownItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -44,9 +55,12 @@ export class ElementCreationManager {
         });
     }
 
+    /**
+     * Sets up keyboard shortcuts for quick element creation
+     */
     private setupKeyboardShortcuts(): void {
         document.addEventListener('keydown', (e) => {
-            // Only trigger if no input is focused
+            // Only trigger if no input element is currently focused
             if (this.isInputFocused()) return;
 
             let elementType: "box" | "text" | "image" | null = null;

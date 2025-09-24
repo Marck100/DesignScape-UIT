@@ -1,10 +1,18 @@
-// Undo/redo functionality and keyboard shortcuts
+// Undo/redo functionality and keyboard shortcuts management
 
 import { DesignCanvas } from "../core/canvas";
 
+/**
+ * Manages undo/redo operations through UI buttons and keyboard shortcuts.
+ * Provides visual feedback and maintains history state synchronization.
+ */
 export class HistoryManager {
     private dc: DesignCanvas;
 
+    /**
+     * Creates a new HistoryManager instance
+     * @param canvas - The design canvas to manage history for
+     */
     constructor(canvas: DesignCanvas) {
         this.dc = canvas;
         this.setupUndoRedoButtons();
@@ -12,6 +20,9 @@ export class HistoryManager {
         this.setupHistoryCallbacks();
     }
 
+    /**
+     * Sets up event listeners for undo/redo buttons
+     */
     private setupUndoRedoButtons(): void {
         const undoBtn = document.getElementById("undo-btn") as HTMLButtonElement;
         const redoBtn = document.getElementById("redo-btn") as HTMLButtonElement;

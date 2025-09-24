@@ -1,9 +1,13 @@
-// Template selection and management functionality
+// Template selection and management functionality for index page
 
 import { LayoutElement } from "./core/element";
 import { TemplateData } from "./types/template";
 import { templates } from "./config/templates";
 
+/**
+ * Manages the index page functionality including template management,
+ * modal handling, and import functionality
+ */
 class HomePageManager {
     private importModal: HTMLElement | null = null;
     private jsonFileInput: HTMLInputElement | null = null;
@@ -15,8 +19,11 @@ class HomePageManager {
         this.renderTemplatePreview();
     }
 
+    /**
+     * Initializes event listeners for template cards and import functionality
+     */
     private initializeEventListeners(): void {
-        // Template selection
+        // Template selection event listeners
         document.querySelectorAll('.template-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const template = (e.currentTarget as HTMLElement).dataset.template;
@@ -26,7 +33,7 @@ class HomePageManager {
             });
         });
 
-        // Import JSON button
+        // Import JSON button event listener
         const importBtn = document.getElementById('import-json-btn');
         if (importBtn) {
             importBtn.addEventListener('click', () => {
@@ -35,12 +42,15 @@ class HomePageManager {
         }
     }
 
+    /**
+     * Sets up the import modal and its event listeners
+     */
     private setupModal(): void {
         this.importModal = document.getElementById('import-modal');
         this.jsonFileInput = document.getElementById('json-file') as HTMLInputElement;
         this.jsonTextArea = document.getElementById('json-text') as HTMLTextAreaElement;
 
-        // Close modal
+        // Close modal button event listener
         const closeBtn = document.getElementById('close-modal');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {

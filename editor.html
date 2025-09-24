@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Basic page setup for the DesignScape editor interface -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DesignScape - AI-Powered Layout Designer</title>
+    <!-- External stylesheets and fonts -->
     <link rel="stylesheet" href="src/styles/editor.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -12,6 +14,7 @@
     <!-- Header -->
     <header class="app-header">
         <div class="header-content">
+            <!-- Logo and home link -->
             <div class="logo">
                 <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
                     <span class="material-icons">design_services</span>
@@ -21,13 +24,16 @@
             
             <!-- Add Element Controls (Center) -->
             <div class="header-center">
+                <!-- Main element creation dropdown -->
                 <div class="dropdown-container">
                     <button class="btn btn-primary" id="add-element-btn">
                         <span class="material-icons">add</span>
                         Add Element
                         <span class="material-icons dropdown-arrow">keyboard_arrow_down</span>
                     </button>
+                    <!-- Dropdown menu for element types -->
                     <div class="dropdown-menu" id="element-dropdown">
+                        <!-- Rectangle element option -->
                         <button class="dropdown-item" data-element="box">
                             <span class="material-icons">crop_square</span>
                             <span class="item-text">
@@ -36,6 +42,7 @@
                             </span>
                             <span class="item-shortcut">R</span>
                         </button>
+                        <!-- Text element option -->
                         <button class="dropdown-item" data-element="text">
                             <span class="material-icons">text_fields</span>
                             <span class="item-text">
@@ -44,6 +51,7 @@
                             </span>
                             <span class="item-shortcut">T</span>
                         </button>
+                        <!-- Image element option -->
                         <button class="dropdown-item" data-element="image">
                             <span class="material-icons">image</span>
                             <span class="item-text">
@@ -56,18 +64,22 @@
                 </div>
             </div>
 
+            <!-- Header action buttons -->
             <div class="header-actions">
                 <div class="action-group">
+                    <!-- Home navigation -->
                     <a href="index.html" class="btn btn-secondary" title="New Project">
                         <span class="material-icons">home</span>
                         <span>Home</span>
                     </a>
+                    <!-- Undo/Redo controls -->
                     <button class="btn btn-secondary" id="undo-btn" disabled title="Undo (Ctrl+Z)">
                         <span class="material-icons">undo</span>
                     </button>
                     <button class="btn btn-secondary" id="redo-btn" disabled title="Redo (Ctrl+Y)">
                         <span class="material-icons">redo</span>
                     </button>
+                    <!-- Export functionality -->
                     <button class="btn btn-secondary" id="export-project">
                         <span class="material-icons">download</span>
                         Export
@@ -77,16 +89,17 @@
         </div>
     </header>
 
-    <!-- Properties Toolbar - Separate from header -->
+    <!-- Properties Toolbar - Element control panel -->
     <div id="properties-toolbar" class="properties-toolbar">
-        <!-- Lock Section -->
+        <!-- Element lock/unlock controls -->
         <div id="lock-section" class="toolbar-section" style="display: none;">
             <button class="toolbar-btn" id="lock-btn" title="Lock/Unlock element">
                 <span class="material-icons">lock_open</span>
             </button>
         </div>
-        <!-- Box Properties -->
+        <!-- Rectangle element properties -->
         <div id="box-properties" class="toolbar-content" style="display: none;">
+            <!-- Position and size controls -->
             <div class="toolbar-section">
                 <span class="toolbar-label">X</span>
                 <input type="number" id="box-x" value="0" class="size-input" step="1" />
@@ -117,8 +130,9 @@
             </div>
         </div>
 
-        <!-- Text Properties -->
+        <!-- Text element properties -->
         <div id="text-properties" class="toolbar-content" style="display: none;">
+            <!-- Text position controls -->
             <div class="toolbar-section">
                 <span class="toolbar-label">X</span>
                 <input type="number" id="text-x" value="0" class="size-input" step="1" />
@@ -131,6 +145,7 @@
             
             <div class="toolbar-separator"></div>
             
+            <!-- Text dimensions controls -->
             <div class="toolbar-section">
                 <span class="toolbar-label">W</span>
                 <input type="number" id="text-width" value="200" class="size-input" min="50" step="1" />
@@ -143,6 +158,7 @@
             
             <div class="toolbar-separator"></div>
             
+            <!-- Font family selection -->
             <div class="toolbar-section">
                 <select id="font-family" class="toolbar-select">
                     <option value="Inter">Inter</option>
@@ -155,6 +171,7 @@
             
             <div class="toolbar-separator"></div>
             
+            <!-- Font size control -->
             <div class="toolbar-section">
                 <input type="number" id="font-size" min="8" max="72" value="20" class="size-input" />
                 <span class="input-suffix">px</span>
@@ -162,6 +179,7 @@
             
             <div class="toolbar-separator"></div>
             
+            <!-- Text alignment controls -->
             <div class="toolbar-section">
                 <button class="toolbar-btn" data-align="left" title="Align Left">
                     <span class="material-icons">format_align_left</span>
@@ -176,6 +194,7 @@
             
             <div class="toolbar-separator"></div>
             
+            <!-- Text formatting controls -->
             <div class="toolbar-section">
                 <button class="toolbar-btn" id="font-bold-btn" title="Bold">
                     <span class="material-icons">format_bold</span>
@@ -187,13 +206,14 @@
             
             <div class="toolbar-separator"></div>
             
+            <!-- Text color control -->
             <div class="toolbar-section">
                 <input type="color" id="font-color" value="#000000" class="color-picker" />
                 <span class="toolbar-label">Text Color</span>
             </div>
         </div>
 
-        <!-- Empty State -->
+        <!-- Default state when no element is selected -->
         <div id="empty-properties" class="toolbar-content">
             <div class="toolbar-section">
                 <span class="toolbar-label" style="color: #9ca3af; font-style: italic;"></span>
@@ -201,14 +221,16 @@
         </div>
     </div>
 
+    <!-- Main application layout -->
     <div id="app">
-        <!-- Left Sidebar -->
+        <!-- Left Sidebar - AI Refinement Panel -->
         <aside id="left-panel" class="sidebar">
             <div class="sidebar-header">
                 <h3>
                     <span class="material-icons">auto_fix_high</span>
                     AI Refinements
                 </h3>
+                <!-- Auto-refinement toggle -->
                 <div class="sidebar-setting">
                     <label class="toggle-container">
                         <input type="checkbox" id="adaptive-interface-toggle">
@@ -222,20 +244,21 @@
             </div>
         </aside>
 
-        <!-- Main Canvas Area -->
+        <!-- Main Canvas Area - Design workspace -->
         <main id="center-panel" class="main-content">
             <div class="canvas-container">
                 <canvas id="design-canvas" width="1000" height="700"></canvas>
             </div>
         </main>
 
-        <!-- Right Sidebar -->
+        <!-- Right Sidebar - AI Brainstorming Panel -->
         <aside id="right-panel" class="sidebar">
             <div class="sidebar-header">
                 <h3>
                     <span class="material-icons">auto_awesome</span>
                     AI Brainstorming
                 </h3>
+                <!-- Generate ideas button -->
                 <button id="generate-brainstorming" class="btn btn-primary btn-full">
                     <span class="material-icons">auto_awesome</span>
                     Generate Ideas
@@ -247,6 +270,7 @@
         </aside>
     </div>
 
+    <!-- Main application TypeScript module -->
     <script type="module" src="./src/main.ts"></script>
 </body>
 </html>

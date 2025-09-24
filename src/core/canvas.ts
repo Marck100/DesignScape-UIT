@@ -1,10 +1,24 @@
+// Design canvas class for managing layout elements and user interactions
+
 import { LayoutElement } from "./element";
 
+/**
+ * Main canvas class that handles rendering, selection, dragging, resizing,
+ * and editing of layout elements. Manages the interactive design workspace.
+ */
 export class DesignCanvas {
+    /**
+     * Gets all elements on the canvas
+     * @returns Array of layout elements
+     */
     getElements(): LayoutElement[] {
         return this.elements;
     }
 
+    /**
+     * Gets the canvas dimensions
+     * @returns Canvas width and height
+     */
     getCanvasDimensions(): { width: number, height: number } {
         return {
             width: this.canvas.width,
@@ -12,8 +26,11 @@ export class DesignCanvas {
         };
     }
 
+    // Canvas DOM element and rendering context
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
+    
+    // Element management
     public elements: LayoutElement[] = [];
     private selectedElement: LayoutElement | null = null;
 
@@ -27,25 +44,28 @@ export class DesignCanvas {
         return this.editingElement !== null;
     }
 
-    // History management
+    // History management for undo/redo functionality
     private history: LayoutElement[][] = [];
     private historyIndex: number = -1;
     private maxHistorySize: number = 50;
 
+    // Interaction state
     private isDragging: boolean = false;
     private offsetX = 0;
     private offsetY = 0;
-
     private resizingHandleIndex: number | null = null;
 
+    // Text editing state
     private editingElement: LayoutElement | null = null;
     private cursorTimer: number | null = null;
 
+    // Event callbacks for external communication
     onElementSelected: ((el: LayoutElement | null) => void) | null = null;
     onHistoryChange: ((canUndo: boolean, canRedo: boolean) => void) | null = null;
     onElementMoved: ((el: LayoutElement) => void) | null = null;
     onElementUpdated: ((el: LayoutElement) => void) | null = null;
 
+    // AI suggestion containers
     private refinementSuggestionsContainer: HTMLElement | null = null;
     private brainstormingSuggestionsContainer: HTMLElement | null = null;
 
@@ -69,12 +89,19 @@ export class DesignCanvas {
 
     exportLayout(): LayoutElement[] {
         return this.elements.map(el => new LayoutElement({
-        x: el.x,
-        y: el.y,
-        width: el.width,
-        height: el.height,
-        type: el.type,
-        content: el.content
+            x: el.x,
+            y: el.y,
+            width: el.width,
+            height: el.height,
+            type: el.type,
+            content: el.content,
+            fillColor: el.fillColor,
+            fontFamily: el.fontFamily,
+            fontSize: el.fontSize,
+            fontColor: el.fontColor,
+            fontBold: el.fontBold,
+            fontItalic: el.fontItalic,
+            textAlign: el.textAlign
         }));
     }
 

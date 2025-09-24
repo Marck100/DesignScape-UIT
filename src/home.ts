@@ -4,6 +4,10 @@ import { LayoutElement } from "./core/element";
 import { templates } from './config/templates.js';
 import { TemplateData } from "./types/template";
 
+/**
+ * Manages the homepage functionality including template cards generation,
+ * modal handling, and import functionality
+ */
 class HomePageManager {
     private importModal: HTMLElement | null = null;
     private jsonFileInput: HTMLInputElement | null = null;
@@ -15,6 +19,9 @@ class HomePageManager {
         this.setupModal();
     }
 
+    /**
+     * Generates template cards in the grid from the templates configuration
+     */
     private generateTemplateCards(): void {
         const templateGrid = document.querySelector('.templates-grid');
         if (!templateGrid) {
@@ -36,6 +43,12 @@ class HomePageManager {
         templateGrid.appendChild(blankCard);
     }
 
+    /**
+     * Creates a template card element for a specific template
+     * @param key - Template identifier
+     * @param template - Template data object
+     * @returns HTML element for the template card
+     */
     private createTemplateCard(key: string, template: TemplateData): HTMLElement {
         const card = document.createElement('div');
         card.className = 'template-card';
@@ -51,6 +64,10 @@ class HomePageManager {
         return card;
     }
 
+    /**
+     * Creates a blank project card for starting with empty canvas
+     * @returns HTML element for the blank project card
+     */
     private createBlankProjectCard(): HTMLElement {
         const card = document.createElement('div');
         card.className = 'template-card blank-project';
@@ -69,8 +86,11 @@ class HomePageManager {
         return card;
     }
 
+    /**
+     * Initializes event listeners for template cards and import functionality
+     */
     private initializeEventListeners(): void {
-        // Template selection
+        // Template selection event listeners
         document.querySelectorAll('.template-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const template = (e.currentTarget as HTMLElement).dataset.template;
@@ -80,7 +100,7 @@ class HomePageManager {
             });
         });
 
-        // Import JSON button
+        // Import JSON button event listener
         const importBtn = document.getElementById('import-json-btn');
         if (importBtn) {
             importBtn.addEventListener('click', () => {
@@ -89,12 +109,15 @@ class HomePageManager {
         }
     }
 
+    /**
+     * Sets up the import modal and its event listeners
+     */
     private setupModal(): void {
         this.importModal = document.getElementById('import-modal');
         this.jsonFileInput = document.getElementById('json-file') as HTMLInputElement;
         this.jsonTextArea = document.getElementById('json-text') as HTMLTextAreaElement;
 
-        // Close modal
+        // Close modal button event listener
         const closeBtn = document.getElementById('close-modal');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
@@ -102,7 +125,7 @@ class HomePageManager {
             });
         }
 
-        // Click outside to close
+        // Click outside modal to close
         if (this.importModal) {
             this.importModal.addEventListener('click', (e) => {
                 if (e.target === this.importModal) {
@@ -111,14 +134,14 @@ class HomePageManager {
             });
         }
 
-        // File input
+        // File input change event listener
         if (this.jsonFileInput) {
             this.jsonFileInput.addEventListener('change', (e) => {
                 this.handleFileImport(e);
             });
         }
 
-        // Import from text button
+        // Import from text button event listener
         const importFromTextBtn = document.getElementById('import-from-text');
         if (importFromTextBtn) {
             importFromTextBtn.addEventListener('click', () => {
@@ -126,7 +149,7 @@ class HomePageManager {
             });
         }
 
-        // Handle ESC key
+        // Handle ESC key to close modal
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.importModal?.classList.contains('show')) {
                 this.hideImportModal();
@@ -134,6 +157,10 @@ class HomePageManager {
         });
     }
 
+    /**
+     * Loads a template or redirects to editor with template data
+     * @param templateKey - The key of the template to load
+     */
     private loadTemplate(templateKey: string): void {
         if (templateKey === 'blank') {
             // Redirect to blank canvas
@@ -143,25 +170,31 @@ class HomePageManager {
 
         const template = templates[templateKey];
         if (template) {
-            // Store template data in sessionStorage
+            // Store template data in sessionStorage for editor to use
             sessionStorage.setItem('templateData', JSON.stringify(template));
             
-            // Redirect to main app
+            // Redirect to main app with template parameter
             window.location.href = 'editor.html?template=' + templateKey;
         }
     }
 
+    /**
+     * Shows the import modal for JSON file/text import
+     */
     private showImportModal(): void {
         if (this.importModal) {
             this.importModal.classList.add('show');
             this.importModal.style.display = 'flex';
             
-            // Reset form
+            // Reset form fields
             if (this.jsonFileInput) this.jsonFileInput.value = '';
             if (this.jsonTextArea) this.jsonTextArea.value = '';
         }
     }
 
+    /**
+     * Hides the import modal with animation
+     */
     private hideImportModal(): void {
         if (this.importModal) {
             this.importModal.classList.remove('show');
@@ -173,6 +206,10 @@ class HomePageManager {
         }
     }
 
+    /**
+     * Handles import from file upload
+     * @param event - File input change event
+     */
     private async handleFileImport(event: Event): Promise<void> {
         const input = event.target as HTMLInputElement;
         const file = input.files?.[0];
@@ -190,6 +227,9 @@ class HomePageManager {
         }
     }
 
+    /**
+     * Handles import from text area JSON content
+     */
     private handleTextImport(): void {
         if (this.jsonTextArea) {
             const text = this.jsonTextArea.value.trim();
@@ -206,6 +246,10 @@ class HomePageManager {
         }
     }
 
+    /**
+     * Processes imported layout data and redirects to editor
+     * @param data - The imported layout data
+     */
     private importLayout(data: any): void {
         try {
             // Validate the data structure
@@ -213,10 +257,10 @@ class HomePageManager {
                 throw new Error('Invalid layout format: missing elements array');
             }
 
-            // Store the imported data
+            // Store the imported data for editor to use
             sessionStorage.setItem('importedLayout', JSON.stringify(data));
             
-            // Redirect to main app
+            // Redirect to editor with import flag
             window.location.href = 'editor.html?import=true';
             
         } catch (error) {

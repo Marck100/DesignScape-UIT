@@ -2,7 +2,13 @@
 
 import { ElementType, TextAlign, LayoutElementOptions } from "../types/element";
 
+/**
+ * Represents a visual element on the design canvas with properties for rendering,
+ * interaction, and manipulation. Supports various element types including boxes,
+ * text, and images with full editing capabilities.
+ */
 export class LayoutElement {
+    // Position and dimensions
     x: number;
     y: number;
     width: number;
@@ -10,13 +16,16 @@ export class LayoutElement {
     type: ElementType;
     content?: string;
     fillColor?: string;
+    
+    // Selection and interaction state
     isSelected: boolean = false;
-
-    resizeHandleSize: number = 12; // Increased from 10 to 12 for better visibility
-
+    resizeHandleSize: number = 12;
+    
+    // Text editing state
     isEditing: boolean = false;
     cursorVisible: boolean = false;
 
+    // Typography properties
     fontFamily: string = "Arial";
     fontSize: number = 20;
     fontColor: string = "#333";
@@ -30,9 +39,13 @@ export class LayoutElement {
     private static failedImages: Set<string> = new Set(); // Track images that failed to load
     private static CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL
     
-    // If locked, element cannot be moved or resized or edited
+    // Lock state - if locked, element cannot be moved, resized, or edited
     locked: boolean = false;
 
+        /**
+     * Creates a new layout element with the specified options
+     * @param options - Configuration options for the element
+     */
     constructor(options: LayoutElementOptions) {
         this.x = options.x;
         this.y = options.y;
@@ -43,25 +56,43 @@ export class LayoutElement {
         this.fillColor = options.fillColor;
 
         if (this.type === "text") {
+            // Apply text-specific properties
             this.fontFamily = options.fontFamily ?? this.fontFamily;
             this.fontSize = options.fontSize ?? this.fontSize;
             this.fontColor = options.fontColor ?? this.fontColor;
             this.fontBold = options.fontBold ?? this.fontBold;
             this.fontItalic = options.fontItalic ?? this.fontItalic;
+            this.textAlign = options.textAlign ?? this.textAlign;
         }
     }
 
+    /**
+     * Converts the element to a serializable object for saving/exporting
+     * @returns Serializable representation of the element
+     */
     toSerializable(): object {
         return {
-        x: this.x,
-        y: this.y,
-        width: this.width,
-        height: this.height,
-        type: this.type,
-        content: this.content ?? null
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            type: this.type,
+            content: this.content ?? null,
+            fillColor: this.fillColor,
+            locked: this.locked,
+            fontFamily: this.fontFamily,
+            fontSize: this.fontSize,
+            fontColor: this.fontColor,
+            fontBold: this.fontBold,
+            fontItalic: this.fontItalic,
+            textAlign: this.textAlign
         };
     }
 
+    /**
+     * Gets the positions of resize handles for this element
+     * @returns Array of handle positions at element corners
+     */
     getResizeHandles(): {x: number, y: number}[] {
         return [
             { x: this.x, y: this.y },                                               // top-left corner
@@ -71,7 +102,12 @@ export class LayoutElement {
         ];
     }
 
-
+    /**
+     * Determines which resize handle (if any) is at the given coordinates
+     * @param px - X coordinate to test
+     * @param py - Y coordinate to test
+     * @returns Handle index (0-3) or null if no handle at coordinates
+     */
     getResizeHandle(px: number, py: number): number | null {
         const tolerance = 15; // Increased hit area for better UX
         
@@ -107,9 +143,9 @@ export class LayoutElement {
             ctx.lineWidth = 1;
             ctx.strokeRect(this.x - 2, this.y - 2, this.width + 4, this.height + 4);
 
-            // Handle di ridimensionamento più visibili
+            // More visible resize handles
             for (const h of this.getResizeHandles()) {
-                // Ombra leggera per profondità
+                // Light shadow for depth
                 ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
                 ctx.fillRect(
                     h.x - this.resizeHandleSize / 2 + 1,

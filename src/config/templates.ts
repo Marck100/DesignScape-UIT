@@ -1,29 +1,35 @@
+// Predefined layout templates for quick project creation
+
 import { TemplateData } from "../types/template";
 
+/**
+ * Collection of predefined templates that users can start with
+ * Each template provides a complete layout with positioned elements
+ */
 export const templates: Record<string, TemplateData> = {
     "portfolio": {
         name: "Portfolio Showcase",
         description: "Clean layout for showcasing creative work and projects",
         elements: [
-            // Title
+            // Main title header
             { x: 400, y: 80, width: 200, height: 50, type: "text", content: "Portfolio", fontSize: 28, fontWeight: "bold", textAlign: "center" },
             
-            // Project Alpha
+            // Project Alpha section
             { x: 80, y: 160, width: 180, height: 30, type: "text", content: "Project Alpha", fontSize: 16, fontWeight: "bold" },
             { x: 80, y: 200, width: 180, height: 120, type: "image", content: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=180&h=120&fit=crop&crop=center" },
             { x: 80, y: 330, width: 180, height: 40, type: "text", content: "Brief description of this creative project and its key features.", fontSize: 11 },
             
-            // Project Beta
+            // Project Beta section
             { x: 320, y: 160, width: 180, height: 30, type: "text", content: "Project Beta", fontSize: 16, fontWeight: "bold" },
             { x: 320, y: 200, width: 180, height: 120, type: "image", content: "https://images.unsplash.com/photo-1620325867502-221cfb5faa5f?w=180&h=120&fit=crop&crop=center" },
             { x: 320, y: 330, width: 180, height: 40, type: "text", content: "Brief description of this creative project and its key features.", fontSize: 11 },
             
-            // Project Gamma
+            // Project Gamma section
             { x: 560, y: 160, width: 180, height: 30, type: "text", content: "Project Gamma", fontSize: 16, fontWeight: "bold" },
             { x: 560, y: 200, width: 180, height: 120, type: "image", content: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=180&h=120&fit=crop&crop=center" },
             { x: 560, y: 330, width: 180, height: 40, type: "text", content: "Brief description of this creative project and its key features.", fontSize: 11 },
             
-            // Project Delta
+            // Project Delta section
             { x: 800, y: 160, width: 180, height: 30, type: "text", content: "Project Delta", fontSize: 16, fontWeight: "bold" },
             { x: 800, y: 200, width: 180, height: 120, type: "image", content: "https://images.unsplash.com/photo-1608303588026-884930af2559?w=180&h=120&fit=crop&crop=center" },
             { x: 800, y: 330, width: 180, height: 40, type: "text", content: "Brief description of this creative project and its key features.", fontSize: 11 }

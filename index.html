@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Basic page setup for the DesignScape index page -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DesignScape - Research Prototype</title>
+    <!-- External stylesheets and fonts -->
     <link rel="stylesheet" href="src/styles/home.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header section -->
     <header class="home-header">
         <div class="header-content">
+            <!-- Logo and brand -->
             <div class="logo">
                 <span class="material-icons">design_services</span>
                 <h1>DesignScape</h1>
             </div>
             
+            <!-- Main action buttons -->
             <div class="header-actions">
+                <!-- Import existing layout functionality -->
                 <button class="btn btn-secondary" id="import-json-btn">
                     <span class="material-icons">upload_file</span>
                     Import Layout
                 </button>
+                <!-- Start new design button -->
                 <a href="editor.html" class="btn btn-primary">
                     <span class="material-icons">add</span>
                     Create New Layout
@@ -84,6 +90,7 @@
         </div>
     </footer>
 
+    <!-- Home page TypeScript module -->
     <script type="module" src="src/home.ts"></script>
 </body>
 </html>

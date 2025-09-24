@@ -1,4 +1,4 @@
-// General UI and panels management
+// General UI and panels management for the DesignScope interface
 
 import { DesignCanvas } from "../core/canvas";
 import { ControlsManager } from "./ControlsManager";
@@ -6,15 +6,27 @@ import { generateRefinementSuggestions } from "../core/ai-suggestions";
 import APIService from "../services/APIService";
 import { LayoutElement } from "../core/element";
 
+/**
+ * Manages UI panels, brainstorming functionality, and refinement suggestions.
+ * Coordinates between the canvas and various UI components.
+ */
 export class UIManager {
     private dc: DesignCanvas;
     private autoSaveCallback: () => void;
 
+    /**
+     * Creates a new UIManager instance
+     * @param canvas - The design canvas to manage UI for
+     * @param autoSaveCallback - Function to call when auto-save is needed
+     */
     constructor(canvas: DesignCanvas, autoSaveCallback: () => void) {
         this.dc = canvas;
         this.autoSaveCallback = autoSaveCallback;
     }
 
+    /**
+     * Sets up the main UI panels (left and right sidebars)
+     */
     setupUIPanel(): void {
         // Setup for showing/hiding UI panels
         const leftPanel = document.getElementById('left-panel');
@@ -24,6 +36,9 @@ export class UIManager {
         // For now, panels are visible by default
     }
 
+    /**
+     * Sets up the brainstorming panel with AI suggestion generation
+     */
     setupBrainstormingPanel(): void {
         console.log('UIManager: setupBrainstormingPanel initializing');
         const generateBtn = document.getElementById('generate-brainstorming') as HTMLButtonElement;
@@ -32,11 +47,11 @@ export class UIManager {
 
         if (!generateBtn || !suggestionsContainer) return;
 
-        // On click, fetch suggestions for entire canvas via APIService
+        // Handle brainstorming generation button click
         generateBtn.addEventListener('click', async () => {
             console.log('UIManager: generateBtn clicked');
             
-            // Mostra indicatore di caricamento
+            // Show loading indicator
             generateBtn.disabled = true;
             generateBtn.innerHTML = '<span class="material-icons spinning">refresh</span> Generating...';
             suggestionsContainer.innerHTML = '<div class="loading-indicator"><span class="material-icons spinning">refresh</span><p>Generating creative suggestions...</p></div>';
@@ -47,6 +62,16 @@ export class UIManager {
                 console.log('UIManager: sending elements for brainstorming', elements, 'canvas dimensions:', canvasDimensions);
                 const suggestions = await APIService.getBrainstormingSuggestions(elements, canvasDimensions);
                 console.log('UIManager: received suggestions', suggestions);
+                console.log('UIManager: suggestions type:', typeof suggestions);
+                console.log('UIManager: suggestions length:', suggestions?.length);
+                
+                if (suggestions.length > 0) {
+                    console.log('UIManager: first suggestion structure:', suggestions[0]);
+                    console.log('UIManager: first suggestion type:', typeof suggestions[0]);
+                    if (typeof suggestions[0] === 'object') {
+                        console.log('UIManager: first suggestion keys:', Object.keys(suggestions[0] || {}));
+                    }
+                }
                 
                 if (suggestions.length === 0) {
                     suggestionsContainer.innerHTML = '<p class="hint-text">No ideas available.</p>';
@@ -71,29 +96,69 @@ export class UIManager {
                     item.addEventListener('click', () => {
                         const idx = parseInt(item.getAttribute('data-index') || '0');
                         const suggestion = suggestions[idx] as any;
+                        console.log('UIManager: applying suggestion at index', idx);
+                        console.log('UIManager: suggestion object:', suggestion);
+                        console.log('UIManager: suggestion type:', typeof suggestion);
+                        
+                        if (typeof suggestion === 'object') {
+                            console.log('UIManager: suggestion keys:', Object.keys(suggestion));
+                        }
+                        
                         const layoutData = (typeof suggestion === 'object' && suggestion.layout) ? suggestion.layout : null;
-                        // Apply returned layout
+                        console.log('UIManager: extracted layoutData:', layoutData);
+                        console.log('UIManager: layoutData type:', typeof layoutData);
+                        console.log('UIManager: layoutData is array:', Array.isArray(layoutData));
+                        
+                        if (layoutData && Array.isArray(layoutData)) {
+                            console.log('UIManager: layoutData length:', layoutData.length);
+                            console.log('UIManager: first layout element:', layoutData[0]);
+                        }
+                        
+                        // Apply returned layout to canvas
                         this.dc.clearCanvas();
                         
                         if (layoutData) {
-                            // Se layoutData è un array, usalo direttamente
+                            // If layoutData is an array of elements, use it directly
                             if (Array.isArray(layoutData)) {
-                                layoutData.forEach(data => {
-                                    this.dc.addElement(new LayoutElement(data));
+                                console.log('UIManager: applying layoutData as array');
+                                layoutData.forEach((data, index) => {
+                                    console.log(`UIManager: adding element ${index}:`, data);
+                                    try {
+                                        this.dc.addElement(new LayoutElement(data));
+                                    } catch (error) {
+                                        console.error(`UIManager: error creating element ${index}:`, error);
+                                    }
                                 });
                             } 
-                            // Se layoutData ha una proprietà elements che è un array
+                            // If layoutData has an elements property that is an array
                             else if (layoutData.elements && Array.isArray(layoutData.elements)) {
-                                layoutData.elements.forEach((data: any) => {
-                                    this.dc.addElement(new LayoutElement(data));
+                                console.log('UIManager: applying layoutData.elements as array');
+                                layoutData.elements.forEach((data: any, index: number) => {
+                                    console.log(`UIManager: adding element ${index}:`, data);
+                                    try {
+                                        this.dc.addElement(new LayoutElement(data));
+                                    } catch (error) {
+                                        console.error(`UIManager: error creating element ${index}:`, error);
+                                    }
                                 });
                             }
                             // Fallback: prova a trattarlo come singolo elemento
                             else {
-                                console.warn('Layout data structure not recognized:', layoutData);
+                                console.warn('UIManager: Layout data structure not recognized:', layoutData);
+                                console.log('UIManager: trying to apply as single element');
+                                try {
+                                    this.dc.addElement(new LayoutElement(layoutData));
+                                } catch (error) {
+                                    console.error('UIManager: error creating single element:', error);
+                                }
                             }
+                        } else {
+                            console.warn('UIManager: No layoutData found in suggestion');
                         }
+                        
+                        console.log('UIManager: calling dc.draw() to render canvas');
                         this.dc.draw();
+                        console.log('UIManager: canvas elements count:', this.dc.getElements().length);
                         console.log('UIManager: applied suggestion layout', (suggestions[idx] as any).name || 'layout');
                     });
                 });

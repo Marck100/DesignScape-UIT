@@ -1,15 +1,19 @@
-// User interface controls management
+// User interface controls management for element properties and settings
 
 import { DesignCanvas } from "../core/canvas";
 import { LayoutElement } from "../core/element";
 import { TextAlign } from "../types/element";
 import { snapToGrid, validateDimension, validateFontSize, calculateIncrementValue } from "../utils/gridUtils";
 
+/**
+ * Manages the UI controls panel for editing element properties.
+ * Handles input synchronization, validation, and auto-save functionality.
+ */
 export class ControlsManager {
     private dc: DesignCanvas;
     private autoSaveCallback: () => void;
     
-    // UI Elements
+    // UI element references for box controls
     private boxControls!: {
         x: HTMLInputElement;
         y: HTMLInputElement;
@@ -18,6 +22,7 @@ export class ControlsManager {
         color: HTMLInputElement;
     };
     
+    // UI element references for text controls
     private textControls!: {
         x: HTMLInputElement;
         y: HTMLInputElement;
@@ -27,15 +32,21 @@ export class ControlsManager {
         fontSize: HTMLInputElement;
         fontColor: HTMLInputElement;
     };
-    // Lock control UI
+    
+    // Lock control UI elements
     private lockSection!: HTMLElement;
     private lockBtn!: HTMLButtonElement;
 
-    // Text state
+    // Current text formatting state
     private currentTextAlign: TextAlign = 'left';
     private currentFontBold = false;
     private currentFontItalic = false;
 
+    /**
+     * Creates a new ControlsManager instance
+     * @param canvas - The design canvas to control
+     * @param autoSaveCallback - Function to call when changes need to be saved
+     */
     constructor(canvas: DesignCanvas, autoSaveCallback: () => void) {
         this.dc = canvas;
         this.autoSaveCallback = autoSaveCallback;
