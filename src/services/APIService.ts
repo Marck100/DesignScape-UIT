@@ -9,17 +9,19 @@ export default class APIService {
      * Fetches brainstorming suggestions from the backend AI service
      * @param elements - Array of layout elements to analyze
      * @param canvasDimensions - Optional canvas dimensions for context
+     * @param llmModel - The LLM model to use for generation (e.g., 'gpt-4o', 'gpt-4o-mini', etc.)
      * @returns Promise resolving to array of suggestion strings
      */
-    static async getBrainstormingSuggestions(elements: any[], canvasDimensions?: { width: number, height: number }): Promise<string[]> {
-        console.log('APIService.getBrainstormingSuggestions called with elements:', elements, 'canvas dimensions:', canvasDimensions);
+    static async getBrainstormingSuggestions(elements: any[], canvasDimensions?: { width: number, height: number }, llmModel?: string): Promise<string[]> {
+        console.log('APIService.getBrainstormingSuggestions called with elements:', elements, 'canvas dimensions:', canvasDimensions, 'llm model:', llmModel);
         try {
             console.log('APIService: sending POST to http://localhost:8000/predict');
             
-            // Prepare payload with serialized elements and canvas context
+            // Prepare payload with serialized elements, canvas context, and LLM model
             const payload = { 
                 elements: elements.map(el => el.toSerializable ? el.toSerializable() : el),
-                canvasDimensions: canvasDimensions
+                canvasDimensions: canvasDimensions,
+                'llm-name': llmModel || 'gpt-4o' // Default to gpt-4o if no model specified
             };
             console.log('APIService: payload sent:', payload);
             

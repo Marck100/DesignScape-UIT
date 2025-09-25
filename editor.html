@@ -99,6 +99,14 @@
         </div>
         <!-- Rectangle element properties -->
         <div id="box-properties" class="toolbar-content" style="display: none;">
+            <!-- Element name control -->
+            <div class="toolbar-section">
+                <span class="toolbar-label">Name</span>
+                <input type="text" id="box-name" value="" class="name-input" placeholder="Element name" />
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
             <!-- Position and size controls -->
             <div class="toolbar-section">
                 <span class="toolbar-label">X</span>
@@ -132,6 +140,14 @@
 
         <!-- Text element properties -->
         <div id="text-properties" class="toolbar-content" style="display: none;">
+            <!-- Element name control -->
+            <div class="toolbar-section">
+                <span class="toolbar-label">Name</span>
+                <input type="text" id="text-name" value="" class="name-input" placeholder="Element name" />
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
             <!-- Text position controls -->
             <div class="toolbar-section">
                 <span class="toolbar-label">X</span>
@@ -209,7 +225,6 @@
             <!-- Text color control -->
             <div class="toolbar-section">
                 <input type="color" id="font-color" value="#000000" class="color-picker" />
-                <span class="toolbar-label">Text Color</span>
             </div>
         </div>
 
@@ -258,6 +273,16 @@
                     <span class="material-icons">auto_awesome</span>
                     AI Brainstorming
                 </h3>
+                <!-- Model selection -->
+                <div class="model-selection">
+                    <label for="llm-model-select"></label>
+                    <select id="llm-model-select" class="model-selector">
+                        <option value="gpt-4o">GPT-4o</option>
+                        <option value="gpt-4o-mini">GPT-4o Mini</option>
+                        <option value="gpt-5">GPT-5</option>
+                        <option value="gpt-5-mini">GPT-5 Mini</option>
+                    </select>
+                </div>
                 <!-- Generate ideas button -->
                 <button id="generate-brainstorming" class="btn btn-primary btn-full">
                     <span class="material-icons">auto_awesome</span>

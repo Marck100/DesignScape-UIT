@@ -94,6 +94,7 @@ export class DesignCanvas {
             width: el.width,
             height: el.height,
             type: el.type,
+            name: el.name,
             content: el.content,
             fillColor: el.fillColor,
             fontFamily: el.fontFamily,
@@ -115,6 +116,10 @@ export class DesignCanvas {
         this.elements = [];
         this.selectedElement = null;
         this.draw();
+        
+        // Reset name counters when clearing canvas
+        LayoutElement.resetAllNameCounters();
+        
         // Reset history when clearing canvas
         this.history = [];
         this.historyIndex = -1;
@@ -480,6 +485,7 @@ export class DesignCanvas {
             width: el.width,
             height: el.height,
             type: el.type,
+            name: el.name,
             content: el.content,
             fontSize: el.fontSize,
             fontBold: el.fontBold,
@@ -531,6 +537,7 @@ export class DesignCanvas {
                 width: el.width,
                 height: el.height,
                 type: el.type,
+                name: el.name,
                 content: el.content,
                 fontSize: el.fontSize,
                 fontBold: el.fontBold,

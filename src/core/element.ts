@@ -17,6 +17,9 @@ export class LayoutElement {
     content?: string;
     fillColor?: string;
     
+    // Element identification
+    name: string;
+    
     // Selection and interaction state
     isSelected: boolean = false;
     resizeHandleSize: number = 12;
@@ -39,8 +42,62 @@ export class LayoutElement {
     private static failedImages: Set<string> = new Set(); // Track images that failed to load
     private static CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL
     
+    // Static counters for auto-naming elements
+    private static nameCounters: Map<ElementType, number> = new Map([
+        ['text', 0],
+        ['image', 0], 
+        ['box', 0]
+    ]);
+    
     // Lock state - if locked, element cannot be moved, resized, or edited
     locked: boolean = false;
+
+    /**
+     * Generates an automatic name for an element based on its type
+     * @param type - Element type
+     * @returns Generated name (e.g., "text1", "image2", "box3")
+     */
+    private static generateAutoName(type: ElementType): string {
+        const currentCount = LayoutElement.nameCounters.get(type) || 0;
+        const newCount = currentCount + 1;
+        LayoutElement.nameCounters.set(type, newCount);
+        return `${type}${newCount}`;
+    }
+
+    /**
+     * Resets the name counter for a specific type (used when loading projects)
+     * @param type - Element type to reset
+     */
+    public static resetNameCounter(type: ElementType): void {
+        LayoutElement.nameCounters.set(type, 0);
+    }
+
+    /**
+     * Resets all name counters (used when starting fresh)
+     */
+    public static resetAllNameCounters(): void {
+        LayoutElement.nameCounters.set('text', 0);
+        LayoutElement.nameCounters.set('image', 0);
+        LayoutElement.nameCounters.set('box', 0);
+    }
+
+    /**
+     * Sets a custom name for this element
+     * @param newName - New name for the element
+     */
+    public setName(newName: string): void {
+        if (newName.trim().length > 0) {
+            this.name = newName.trim();
+        }
+    }
+
+    /**
+     * Gets the current name of this element
+     * @returns Element name
+     */
+    public getName(): string {
+        return this.name;
+    }
 
         /**
      * Creates a new layout element with the specified options
@@ -54,6 +111,9 @@ export class LayoutElement {
         this.type = options.type;
         this.content = options.content;
         this.fillColor = options.fillColor;
+
+        // Set name (use provided name or generate automatic one)
+        this.name = options.name || LayoutElement.generateAutoName(this.type);
 
         if (this.type === "text") {
             // Apply text-specific properties
@@ -77,6 +137,7 @@ export class LayoutElement {
             width: this.width,
             height: this.height,
             type: this.type,
+            name: this.name,
             content: this.content ?? null,
             fillColor: this.fillColor,
             locked: this.locked,

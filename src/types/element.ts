@@ -19,6 +19,7 @@ export interface LayoutElementOptions {
 
     // Element type and basic properties
     type: ElementType;
+    name?: string;           // Custom name for the element
     content?: string;        // Text content or image URL
     fillColor?: string;      // Background/fill color
 

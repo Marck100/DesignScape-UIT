@@ -150,6 +150,33 @@ body {
     background-color: white;
 }
 
+/* Name input for element identification */
+.properties-toolbar .name-input {
+    width: 120px;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: left;
+    background-color: white;
+    color: #374151;
+}
+
+.properties-toolbar .name-input:hover {
+    border-color: #9ca3af;
+}
+
+.properties-toolbar .name-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.properties-toolbar .name-input::placeholder {
+    color: #9ca3af;
+    font-style: italic;
+}
+
 /* Ensure number input buttons are visible and usable */
 .properties-toolbar .size-input[type="number"] {
     -moz-appearance: textfield; /* Firefox */
@@ -968,4 +995,199 @@ canvas {
 .hint-text.error {
     color: #dc3545;
     font-weight: 500;
+}
+
+/* Model Selection Styling */
+.model-selection {
+    margin-bottom: 18px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.model-selection:hover {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.08);
+    transform: translateY(-1px);
+}
+
+.model-selection label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #475569;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 0.9;
+}
+
+.model-selection label::before {
+    content: '�';
+    font-size: 16px;
+    filter: grayscale(0.2);
+}
+
+.model-selector {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) border-box;
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 18px;
+    padding-right: 45px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.06);
+    position: relative;
+}
+
+.model-selector::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #667eea;
+    transition: transform 0.2s ease;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.model-selector:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    background-size: 20px;
+}
+
+.model-selector:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12),
+                0 8px 25px rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
+}
+
+.model-selector:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.model-selector option {
+    padding: 12px 16px;
+    background: white;
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+/* Model Selection Styling */
+.model-selection {
+    margin-bottom: 18px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.model-selection:hover {
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.08);
+}
+
+.model-selection label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.model-selection label::before {
+    content: 'AI Model';
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.model-selector {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.model-selector:hover {
+    border-color: #9ca3af;
+    box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.1);
+}
+
+.model-selector:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.model-selector option {
+    padding: 10px 12px;
+    background: white;
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Loading state for model selector */
+.model-selection.loading {
+    pointer-events: none;
+}
+
+.model-selection.loading .model-selector {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Loading state for model selector */
+.model-selection.loading {
+    pointer-events: none;
+}
+
+.model-selection.loading .model-selector {
+    opacity: 0.7;
+    cursor: not-allowed;
 }

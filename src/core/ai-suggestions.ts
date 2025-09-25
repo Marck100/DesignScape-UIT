@@ -141,6 +141,27 @@ export function generateRefinementSuggestions(
   const currentBoxes = allElements.map(toElementBox);
   const currentEnergy = calculateLayoutEnergy(currentBoxes, canvasWidth, canvasHeight);
 
+  // ALWAYS ADD THESE FIRST: Canvas alignment suggestions
+  suggestions.push({
+    description: "Center horizontally in canvas",
+    previewData: { x: (canvasWidth - selected.width) / 2 },
+    energyImprovement: 1, // Always show
+    apply: () => {
+      selected.x = (canvasWidth - selected.width) / 2;
+      redraw();
+    }
+  });
+
+  suggestions.push({
+    description: "Center vertically in canvas", 
+    previewData: { y: (canvasHeight - selected.height) / 2 },
+    energyImprovement: 1, // Always show
+    apply: () => {
+      selected.y = (canvasHeight - selected.height) / 2;
+      redraw();
+    }
+  });
+
   // Helper function to test a modification and calculate energy improvement
   function testModification(
     description: string,
@@ -171,49 +192,55 @@ export function generateRefinementSuggestions(
     return null;
   }
 
+  // Store canvas suggestions separately (already added at the beginning)
+  const canvasSuggestions = suggestions.slice(0, 2);
+  
+  // Generate other suggestions
+  const otherSuggestions: RefinementSuggestion[] = [];
+
   // 1. Alignment suggestions - align with other elements
   others.forEach(other => {
     // Left align
     const leftAlign = testModification(
-      `Align left edge with "${other.type}" element`,
+      `Align left edge with "${other.name}"`,
       { x: other.x }
     );
-    if (leftAlign) suggestions.push(leftAlign);
+    if (leftAlign) otherSuggestions.push(leftAlign);
 
     // Right align
     const rightAlign = testModification(
-      `Align right edge with "${other.type}" element`,
+      `Align right edge with "${other.name}"`,
       { x: other.x + other.width - selected.width }
     );
-    if (rightAlign) suggestions.push(rightAlign);
+    if (rightAlign) otherSuggestions.push(rightAlign);
 
     // Center align horizontally
     const centerHAlign = testModification(
-      `Center align horizontally with "${other.type}" element`,
+      `Center align horizontally with "${other.name}"`,
       { x: other.x + (other.width - selected.width) / 2 }
     );
-    if (centerHAlign) suggestions.push(centerHAlign);
+    if (centerHAlign) otherSuggestions.push(centerHAlign);
 
     // Top align
     const topAlign = testModification(
-      `Align top edge with "${other.type}" element`,
+      `Align top edge with "${other.name}"`,
       { y: other.y }
     );
-    if (topAlign) suggestions.push(topAlign);
+    if (topAlign) otherSuggestions.push(topAlign);
 
     // Bottom align
     const bottomAlign = testModification(
-      `Align bottom edge with "${other.type}" element`,
+      `Align bottom edge with "${other.name}"`,
       { y: other.y + other.height - selected.height }
     );
-    if (bottomAlign) suggestions.push(bottomAlign);
+    if (bottomAlign) otherSuggestions.push(bottomAlign);
 
     // Center align vertically
     const centerVAlign = testModification(
-      `Center align vertically with "${other.type}" element`,
+      `Center align vertically with "${other.name}"`,
       { y: other.y + (other.height - selected.height) / 2 }
     );
-    if (centerVAlign) suggestions.push(centerVAlign);
+    if (centerVAlign) otherSuggestions.push(centerVAlign);
   });
 
   // 2. Overlap resolution - move element to avoid overlaps
@@ -236,15 +263,15 @@ export function generateRefinementSuggestions(
 
       positions.forEach(pos => {
         const overlapFix = testModification(
-          `Move to avoid overlap with "${other.type}" element`,
+          `Move to avoid overlap with "${other.name}"`,
           pos
         );
-        if (overlapFix) suggestions.push(overlapFix);
+        if (overlapFix) otherSuggestions.push(overlapFix);
       });
     }
   });
 
-  // 3. Canvas-based suggestions
+  // 3. Other canvas suggestions (optional, with energy evaluation)
   const canvasCenter = testModification(
     "Center in canvas",
     { 
@@ -252,22 +279,12 @@ export function generateRefinementSuggestions(
       y: (canvasHeight - selected.height) / 2 
     }
   );
-  if (canvasCenter) suggestions.push(canvasCenter);
+  if (canvasCenter) otherSuggestions.push(canvasCenter);
 
-  const centerHorizontally = testModification(
-    "Center horizontally in canvas",
-    { x: (canvasWidth - selected.width) / 2 }
-  );
-  if (centerHorizontally) suggestions.push(centerHorizontally);
+  // Sort other suggestions by energy improvement and take top 4
+  otherSuggestions.sort((a, b) => b.energyImprovement - a.energyImprovement);
+  const topSuggestions = otherSuggestions.slice(0, 4);
 
-  const centerVertically = testModification(
-    "Center vertically in canvas",
-    { y: (canvasHeight - selected.height) / 2 }
-  );
-  if (centerVertically) suggestions.push(centerVertically);
-
-  // Sort by energy improvement (best first) and limit to top suggestions
-  suggestions.sort((a, b) => b.energyImprovement - a.energyImprovement);
-  
-  return suggestions.slice(0, 6); // Return top 6 suggestions
+  // Return canvas suggestions (first 2) + top 4 other suggestions
+  return [...canvasSuggestions, ...topSuggestions];
 }

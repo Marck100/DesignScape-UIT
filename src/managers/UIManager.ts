@@ -51,6 +51,17 @@ export class UIManager {
         generateBtn.addEventListener('click', async () => {
             console.log('UIManager: generateBtn clicked');
             
+            // Get selected LLM model
+            const modelSelect = document.getElementById('llm-model-select') as HTMLSelectElement;
+            const modelSelection = document.querySelector('.model-selection') as HTMLElement;
+            const selectedModel = modelSelect ? modelSelect.value : 'gpt-4o';
+            console.log('UIManager: selected LLM model:', selectedModel);
+            
+            // Add loading state to model selector
+            if (modelSelection) {
+                modelSelection.classList.add('loading');
+            }
+            
             // Show loading indicator
             generateBtn.disabled = true;
             generateBtn.innerHTML = '<span class="material-icons spinning">refresh</span> Generating...';
@@ -59,8 +70,8 @@ export class UIManager {
             try {
                 const elements = this.dc.getElements();
                 const canvasDimensions = this.dc.getCanvasDimensions();
-                console.log('UIManager: sending elements for brainstorming', elements, 'canvas dimensions:', canvasDimensions);
-                const suggestions = await APIService.getBrainstormingSuggestions(elements, canvasDimensions);
+                console.log('UIManager: sending elements for brainstorming', elements, 'canvas dimensions:', canvasDimensions, 'model:', selectedModel);
+                const suggestions = await APIService.getBrainstormingSuggestions(elements, canvasDimensions, selectedModel);
                 console.log('UIManager: received suggestions', suggestions);
                 console.log('UIManager: suggestions type:', typeof suggestions);
                 console.log('UIManager: suggestions length:', suggestions?.length);
@@ -167,6 +178,11 @@ export class UIManager {
                 console.error('Error generating suggestions:', error);
                 suggestionsContainer.innerHTML = '<p class="hint-text error">Error generating suggestions. Please try again.</p>';
             } finally {
+                // Remove loading state from model selector
+                if (modelSelection) {
+                    modelSelection.classList.remove('loading');
+                }
+                
                 // Ripristina il pulsante
                 generateBtn.disabled = false;
                 generateBtn.innerHTML = '<span class="material-icons">auto_awesome</span> Generate Ideas';
@@ -269,7 +285,7 @@ export class UIManager {
     }
 
     private autoApplyBestSuggestion(container: HTMLElement, element: any): void {
-        const suggestions = generateRefinementSuggestions(
+        const allSuggestions = generateRefinementSuggestions(
             element,
             this.dc.getElements(),
             1000, // canvas width
@@ -290,9 +306,12 @@ export class UIManager {
         // Ensure panel is visible when unlocked
         container.style.display = '';
         
-        if (suggestions.length > 0) {
-            // Automatically apply the best suggestion (first one, as they're sorted by energy improvement)
-            const bestSuggestion = suggestions[0];
+        // For auto-apply, skip the first 2 canvas alignment suggestions and use only energy-based ones
+        const energyBasedSuggestions = allSuggestions.slice(2); // Skip first 2 (canvas alignment)
+        
+        if (energyBasedSuggestions.length > 0) {
+            // Automatically apply the best energy-based suggestion
+            const bestSuggestion = energyBasedSuggestions[0];
             bestSuggestion.apply();
             
             // Show feedback about what was applied
@@ -302,10 +321,10 @@ export class UIManager {
                     <p><strong>Auto-applied:</strong> ${bestSuggestion.description}</p>
                     <small>Energy improvement: ${bestSuggestion.energyImprovement.toFixed(1)}</small>
                 </div>
-                ${suggestions.length > 1 ? `
+                ${energyBasedSuggestions.length > 1 ? `
                 <div class="other-suggestions">
                     <p><strong>Other suggestions:</strong></p>
-                    ${suggestions.slice(1).map(suggestion => `
+                    ${energyBasedSuggestions.slice(1).map(suggestion => `
                         <div class="suggestion-item clickable">
                             <span class="material-icons">auto_fix_high</span>
                             <p>${suggestion.description}</p>
@@ -315,17 +334,17 @@ export class UIManager {
                 ` : ''}
             `;
             
-            // Add click handlers for remaining suggestions
-            if (suggestions.length > 1) {
+            // Add click handlers for remaining energy-based suggestions
+            if (energyBasedSuggestions.length > 1) {
                 const elems = container.querySelectorAll('.other-suggestions .suggestion-item');
                 elems.forEach((item, idx) => {
                     item.addEventListener('click', () => {
-                        suggestions[idx + 1].apply(); // +1 because we skip the first (already applied)
+                        energyBasedSuggestions[idx + 1].apply(); // +1 because we skip the first (already applied)
                     });
                 });
             }
         } else {
-            container.innerHTML = '<p class="hint-text">No specific suggestions for this element.</p>';
+            container.innerHTML = '<p class="hint-text">No energy-based suggestions available for this element.</p>';
         }
     }
 

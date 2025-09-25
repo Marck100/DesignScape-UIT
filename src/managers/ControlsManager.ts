@@ -15,6 +15,7 @@ export class ControlsManager {
     
     // UI element references for box controls
     private boxControls!: {
+        name: HTMLInputElement;
         x: HTMLInputElement;
         y: HTMLInputElement;
         width: HTMLInputElement;
@@ -24,6 +25,7 @@ export class ControlsManager {
     
     // UI element references for text controls
     private textControls!: {
+        name: HTMLInputElement;
         x: HTMLInputElement;
         y: HTMLInputElement;
         width: HTMLInputElement;
@@ -56,6 +58,7 @@ export class ControlsManager {
 
     private initializeControls(): void {
         this.boxControls = {
+            name: document.getElementById("box-name") as HTMLInputElement,
             x: document.getElementById("box-x") as HTMLInputElement,
             y: document.getElementById("box-y") as HTMLInputElement,
             width: document.getElementById("box-width") as HTMLInputElement,
@@ -64,6 +67,7 @@ export class ControlsManager {
         };
         
         this.textControls = {
+            name: document.getElementById("text-name") as HTMLInputElement,
             x: document.getElementById("text-x") as HTMLInputElement,
             y: document.getElementById("text-y") as HTMLInputElement,
             width: document.getElementById("text-width") as HTMLInputElement,
@@ -78,8 +82,16 @@ export class ControlsManager {
     }
 
     private setupEventListeners(): void {
+        // Box name
+        this.boxControls.name.addEventListener("input", () => this.updateElementName('box'));
+        this.boxControls.name.addEventListener("blur", () => this.updateElementName('box'));
+        
         // Box color
         this.boxControls.color.addEventListener("input", () => this.updateBoxColor());
+        
+        // Text name
+        this.textControls.name.addEventListener("input", () => this.updateElementName('text'));
+        this.textControls.name.addEventListener("blur", () => this.updateElementName('text'));
         
         // Text style controls
         this.textControls.fontFamily.addEventListener("change", () => this.updateSelectedTextElement());
@@ -199,6 +211,21 @@ export class ControlsManager {
         }
     }
 
+    private updateElementName(type: 'box' | 'text'): void {
+        const sel = this.dc.currentSelection;
+        if (!sel) return;
+        
+        const newName = type === 'box' ? 
+            this.boxControls.name.value.trim() : 
+            this.textControls.name.value.trim();
+        
+        if (newName && newName !== sel.name) {
+            sel.setName(newName);
+            this.dc.saveState();
+            this.autoSaveCallback();
+        }
+    }
+
     private updateSelectedBoxElement(): void {
         const sel = this.dc.currentSelection;
         // Apply position/size updates for box and image elements
@@ -248,6 +275,7 @@ export class ControlsManager {
     }
 
     private updateBoxInputValues(element: LayoutElement): void {
+        this.boxControls.name.value = element.name;
         this.boxControls.x.value = element.x.toString();
         this.boxControls.y.value = element.y.toString();
         this.boxControls.width.value = element.width.toString();
@@ -255,6 +283,7 @@ export class ControlsManager {
     }
 
     private updateTextInputValues(element: LayoutElement): void {
+        this.textControls.name.value = element.name;
         this.textControls.x.value = element.x.toString();
         this.textControls.y.value = element.y.toString();
         this.textControls.width.value = element.width.toString();
