@@ -27,10 +27,11 @@ export interface TemplateElement {
     type: ElementType;
     content: string;
     
-    // Optional styling properties
+    // Optional styling properties (modern format)
     fontSize?: number;
-    fontWeight?: string | number;
+    fontBold?: boolean;
+    fontItalic?: boolean;
     textAlign?: TextAlign;
-    color?: string;
-    fontStyle?: string;
+    fontColor?: string;
+    fillColor?: string;
 }
