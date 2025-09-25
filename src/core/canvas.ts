@@ -323,7 +323,7 @@ export class DesignCanvas {
             this.draw();
         } else if (target && target.type === "image") {
             // Allow editing image URL
-            const newUrl = prompt("Inserisci nuovo URL immagine:", target.content || "");
+            const newUrl = prompt("Insert a new URL", target.content || "");
             if (newUrl !== null && newUrl.trim() !== "") {
                 // Validate URL
                 try {
@@ -339,7 +339,7 @@ export class DesignCanvas {
                         this.onElementUpdated(target);
                     }
                 } catch {
-                    alert("URL non valido!");
+                    alert("Invalid URL");
                 }
             }
         }

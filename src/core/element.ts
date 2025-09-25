@@ -2,11 +2,7 @@
 
 import { ElementType, TextAlign, LayoutElementOptions } from "../types/element";
 
-/**
- * Represents a visual element on the design canvas with properties for rendering,
- * interaction, and manipulation. Supports various element types including boxes,
- * text, and images with full editing capabilities.
- */
+
 export class LayoutElement {
     // Position and dimensions
     x: number;
