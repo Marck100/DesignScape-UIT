@@ -4,10 +4,8 @@ import { DesignCanvas } from "./core/canvas";
 import { LayoutElement } from "./core/element";
 import { ControlsManager } from "./managers/ControlsManager";
 import { ElementCreationManager } from "./managers/ElementCreationManager";
-import { SaveManager } from "./managers/SaveManager";
 import { HistoryManager } from "./managers/HistoryManager";
 import { UIManager } from "./managers/UIManager";
-import APIService from "./services/APIService";
 import { templates } from "./config/templates";
 
 // Global flag to track if initial layout has been loaded
@@ -103,11 +101,10 @@ window.addEventListener("DOMContentLoaded", () => {
     loadTemplateFromUrl(dc);
 
     // Initialize managers
-    const saveManager = new SaveManager(dc);
     const historyManager = new HistoryManager(dc);
     const elementCreationManager = new ElementCreationManager(dc);
-    const controlsManager = new ControlsManager(dc, () => saveManager.autoSave());
-    const uiManager = new UIManager(dc, () => saveManager.autoSave());
+    const controlsManager = new ControlsManager(dc, () => {});
+    const uiManager = new UIManager(dc, () => {});
 
     // Setup UI panels
     uiManager.setupUIPanel();

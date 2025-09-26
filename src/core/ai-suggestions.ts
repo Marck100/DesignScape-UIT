@@ -5,7 +5,7 @@ import { RefinementSuggestion } from "../types/refinement";
 import { ElementBox } from "../types/element";
 
 // Configuration constants for energy calculation scoring
-// TODO: Parameter tuning based on user feedback and testing
+// TODO: Parameter tuning
 const DEFAULT_ALIGNMENT_SCORE = 10;
 const CENTERED_ALIGNMENT_SCORE = 15;
 const OVERLAP_PENALTY = 0.1;
@@ -141,7 +141,6 @@ export function generateRefinementSuggestions(
   const currentBoxes = allElements.map(toElementBox);
   const currentEnergy = calculateLayoutEnergy(currentBoxes, canvasWidth, canvasHeight);
 
-  // ALWAYS ADD THESE FIRST: Canvas alignment suggestions
   suggestions.push({
     description: "Center horizontally in canvas",
     previewData: { x: (canvasWidth - selected.width) / 2 },
